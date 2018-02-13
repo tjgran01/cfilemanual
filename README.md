@@ -32,10 +32,9 @@ included in the name of the conditions file.
     take 1000 samples per second). Because of the differences in sampling frequencies, and
     experimental limitations (i.e. if the sensors are unable to be started simultaneously and are therefore out of sync with one another) sensor type must be included in the name of the conditions file. <strong>Even in cases in which your experiment only uses one sensor</strong>.
 
-    - Note: The reason sensor type must always be included is because if cross experimental is
-    to be done later on the data you have collected, the code needs to know what type of
-    data it is looking at. It always pays to think ahead. Plus, it makes the database look
-    prettier and makes scripting easier :).
+    - Note: The reason sensor type must always be included is because if cross experimental analysis is to be done later on the data you have collected, the code needs to know
+    what type of data it is looking at. It always pays to think ahead. Plus, it makes the
+    database look prettier and makes scripting easier.
 
 3. The session number. `s1`
   - Many experiments include multiple sessions. Whether it's because the experiment is
