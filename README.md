@@ -56,7 +56,7 @@ Generically:
 ### Samples
 
 For sample conditions files with proper naming conventions navigate to:
-`cfilemanual/sample/conditons/` in this repository.
+`cfilemanual/scripts/exports/sample/` in this repository.
 
 ## Example Conditions File:
 
