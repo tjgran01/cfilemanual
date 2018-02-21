@@ -1,3 +1,17 @@
+# Table of Contents
+1. [Preface / Resources](#preface--resources)
+2. [Creating Conditions Files](#creating-conditions-files)
+    - [What is a Conditions File?](#what-is-a-conditions-file)
+    - [Naming Conventions](#naming-conventions)
+    - [Samples](#samples)
+3. [Example Conditions Files](#example-conditions-file)
+    - [Task](#task)
+    - [Stim](#stim)
+    - [Onset](#onset)
+    - [Duration](#duration)
+    - [Putting it All Together](#putting-it-all-together)
+4. [Adding Self Report Data To A Conditions File](#adding-self-report-data-to-a-conditions-file)
+
 # Preface / Resources:
 
 The information in this manual has been culled from both personal experience as well as from various reference manuals for the sensors generally used in the MIND lab – if there is a question that you have that you find not addressed in this manual feel free to look over the following resources to see if you question can be answered, or feel free to contact this manual’s author, Trevor Grant, at tjgran01@syr.edu.

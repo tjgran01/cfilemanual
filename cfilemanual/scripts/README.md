@@ -13,10 +13,10 @@ phase to the modeling phase (you know, the fun part).
 
 ### To Contribute to this arm of the project.
 
-Research is a collaborative endeavor with a high rate of churn which is a good thing!
+Research is a collaborative endeavor with a high rate of churn which can be a great thing.
 It allows teams to exchange ideas, knowledge, and domain expertise to others
-throughout the research community organically! Yay! The upshot of this however is
-illustrated in the example below:
+throughout the research community organically! Yay! There is an upshot to this, however,
+illustrated by the example below.
 
 > Fictitious Jim, the computer Wiz, gets another research opportunity at institution X
 > (Congrats, Fictitious Jim!), leaves his previous team with a bunch of useful scripts,
@@ -84,6 +84,16 @@ guides the user through a series of prompts, asking questions like: "How many pa
 where involved in this study?", "How many sensors did you use?", etc. It's aim is to then
 generate templates for the user to input values into via manual entry, or copying and pasting
 from another spreadsheet export such as SurveyMonkey or Qualtrics.
+
+If a researcher does not intend to create conditions files by hand then the output from this
+script will also serve as a backbone to 'check' the marks in the data to ensure that everything is
+correctly lining up. This means that a researcher should run this script first because it will
+also act as a sanity checker to ensure that the automated conditions file generation scripts are
+a) working properly and b) The data fed into the system isn't inconsistent with what the
+experimenter is expecting. For example - if during the creation of this script the experimenter
+states that session 1 of the experiment has 20 tasks, but the data is marked with 22 onsets, then
+the experimenter knows that there might be something odd about a particular dataset, and can further
+examine the data to ensure that everything is accurate.
 
 #### **This file takes as input**:
 
