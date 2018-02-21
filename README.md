@@ -71,11 +71,11 @@ Generically:
 ### Samples
 
 For sample conditions files with proper naming conventions navigate to:
-`./cfilemanual/scripts/exports/sample_exports/` in this repository.
+`./cfilemanual/scripts/python/exports/sample_exports/` in this repository.
 
 ### Useful Scripts
 
-`./cfilemanual/scripts/mkctemp.py` will automate this process for the user. For details
+`./cfilemanual/scripts/python/mkctemp.py` will automate this process for the user. For details
 and further informations view the script's documentation in `./cfilemanual/scrips/README.md`.
 
 # Example Conditions File:
