@@ -77,7 +77,7 @@ For questions or suggestions on formatting, etc, feel free to contact Trevor Gra
 
 #### What this script does:
 
-mkctemp stands for **Make Conditions Template**.
+mkctemp stands for *Make Conditions Template*.
 
 This script is a quick and dirty method for generating conditions file templates. The script
 guides the user through a series of prompts, asking questions like: "How many participants
@@ -95,7 +95,7 @@ states that session 1 of the experiment has 20 tasks, but the data is marked wit
 the experimenter knows that there might be something odd about a particular dataset, and can further
 examine the data to ensure that everything is accurate.
 
-#### **This file takes as input**:
+#### *This file takes as input*:
 
 Nothing, initially, but the script asks the user for information about their experiment
 in order to produce properly named and configured conditions files. Before running you will need
@@ -109,7 +109,7 @@ to know:
   ID is the first two digits in the participant ID. '71')
 - How many *total* tasks participants were exposed to per session of experiment.
 
-#### **This script gives as output**:
+#### *This script gives as output*:
 
 This file will create a subdirectory in the `exports` folder filled with properly named
 and formatted conditions files templates. For examples of what output of this script should
