@@ -4,6 +4,7 @@
     - [What is a Conditions File?](#what-is-a-conditions-file)
     - [Naming Conventions](#naming-conventions)
     - [Samples](#samples)
+    - [Useful Scripts](#useful-scripts)
 3. [Example Conditions Files](#example-conditions-file)
     - [Task](#task)
     - [Stim](#stim)
@@ -70,7 +71,12 @@ Generically:
 ### Samples
 
 For sample conditions files with proper naming conventions navigate to:
-`cfilemanual/scripts/exports/sample/` in this repository.
+`./cfilemanual/scripts/exports/sample_exports/` in this repository.
+
+### Useful Scripts
+
+`./cfilemanual/scripts/mkctemp.py` will automate this process for the user. For details
+and further informations view the script's documentation in `./cfilemanual/scrips/README.md`.
 
 # Example Conditions File:
 
