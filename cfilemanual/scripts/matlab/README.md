@@ -1,11 +1,10 @@
 # Table of Contents
 1. [Overview](#overview)
 2. [Scripts](#scripts)
-    - [mkctemp.py](#mkctemppy)
 
 # Overview
 
-This README should be used as a reference for all of the scripts located within the `/cfilemanual/cfilemanual/scripts/python/` directory of this project. Currently, this
+This README should be used as a reference for all of the scripts located within the `/cfilemanual/cfilemanual//scripts/matlab/` directory of this project. Currently, this
 section is a work in progress and will be updated as more general purpose scripts are
 created to help researchers in the MIND lab (as well as other labs utilizing a conditions
 file based approach for analyzing physiological data) get their data from the collection
@@ -68,57 +67,4 @@ For questions or suggestions on formatting, etc, feel free to contact Trevor Gra
 
 # Scripts
 
-## mkctemp.py
-
-##### Created: 2/2018
-##### Created by: Trevor Grant
-##### Email Support: tjgran01@syr.edu
-##### Created for: Rapidly generating condition file templates with proper file names for a given experiment.
-
-#### What this script does:
-
-mkctemp stands for *Make Conditions Template*.
-
-This script is a quick and dirty method for generating conditions file templates. The script
-guides the user through a series of prompts, asking questions like: "How many participants
-where involved in this study?", "How many sensors did you use?", etc. It's aim is to then
-generate templates for the user to input values into via manual entry, or copying and pasting
-from another spreadsheet export such as SurveyMonkey or Qualtrics.
-
-If a researcher does not intend to create conditions files by hand then the output from this
-script will also serve as a backbone to 'check' the marks in the data to ensure that everything is
-correctly lining up. This means that a researcher should run this script first because it will
-also act as a sanity checker to ensure that the automated conditions file generation scripts are
-a) working properly and b) The data fed into the system isn't inconsistent with what the
-experimenter is expecting. For example - if during the creation of this script the experimenter
-states that session 1 of the experiment has 20 tasks, but the data is marked with 22 onsets, then
-the experimenter knows that there might be something odd about a particular dataset, and can further
-examine the data to ensure that everything is accurate.
-
-#### *This file takes as input*:
-
-Nothing, initially, but the script asks the user for information about their experiment
-in order to produce properly named and configured conditions files. Before running you will need
-to know:
-
-- How many participants are in the experiment.
-- How many sessions were there in the experiment.
-- How many sensors were used in the experiment.
-- What types of sensors were used in the experiment.
-- Their two digit experiment ID. (i.e. if participant IDs are '71'01, '71'02, the experiment
-  ID is the first two digits in the participant ID. '71')
-- How many *total* tasks participants were exposed to per session of experiment.
-
-#### *This script gives as output*:
-
-This file will create a subdirectory in the `exports` folder filled with properly named
-and formatted conditions files templates. For examples of what output of this script should
-look like refer to `./exports/sample_exports/` or `./exports/sample2_exports/` and open up
-the .csv files in your editor of choice.
-
-#### Notes, etc:
-
-It should be noted that these currently include all TLX variables. If you do not want the
-script to generate these values, and wish only to have templates with 'stim', 'onset', and
-'duration' values (which you do need) you can comment out lines `177 - 179` and uncomment
-line `175`.
+N/A Currently.
