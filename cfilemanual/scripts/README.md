@@ -1,7 +1,9 @@
 # Table of Contents
-1. [mkctemp.py](###mkctemp.py)
+1.
+2. [Scripts](#scripts)
+  1. [mkctemp.py](##mkctemp.py)
 
-## Overview
+# Overview
 
 This README should be used as a reference for all of the scripts located within the `/cfilemanual/cfilemanual/scripts/` directory of this project. Currently, this
 section is a work in progress and will be updated as more general purpose scripts are
@@ -47,10 +49,9 @@ as well.
 If in doubt, consider your audience might be users who are wholly unfamiliar with programming.
 For questions on formatting, etc, feel free to contact Trevor Grant at tjgran01@syr.edu.
 
-## Scripts
+# Scripts
 
-<a name="###mkctemp.py"/>
-### mkctemp.py
+## mkctemp.py
 
 ##### Created: 2/2018
 ##### Created by: Trevor Grant
