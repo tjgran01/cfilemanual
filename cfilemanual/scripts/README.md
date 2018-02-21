@@ -1,7 +1,5 @@
 # Table of Contents
 1. [mkctemp.py](###mkctemp.py)
-2. [Example2](#example2)
-3. [Third Example](#third-example)
 
 ## Overview
 
@@ -51,6 +49,7 @@ For questions on formatting, etc, feel free to contact Trevor Grant at tjgran01@
 
 ## Scripts
 
+<a name="###mkctemp.py"/>
 ### mkctemp.py
 
 ##### Created: 2/2018
