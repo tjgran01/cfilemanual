@@ -172,6 +172,8 @@ for fname in fnames:
             print(fname)
             print(task_row)
 
+            # file_rows = [task_row, onset_row, duraction_row]
+
             file_rows = [task_row, onset_row, duration_row,
                          stim_row, tlxm_row, tlxph_row,
                          tlxt_row, tlxp_row, tlxe_row, tlxf_row]

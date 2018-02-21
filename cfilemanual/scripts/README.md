@@ -1,5 +1,5 @@
 # Table of Contents
-1. [Overview](#Overview)
+1. [Overview](#overview)
 2. [Scripts](#scripts)
     - [mkctemp.py](#mkctemppy)
 
@@ -55,6 +55,43 @@ For questions on formatting, etc, feel free to contact Trevor Grant at tjgran01@
 
 ##### Created: 2/2018
 ##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
 ##### Created for: Rapidly generating condition file templates with proper file names for a given experiment.
 
-#### Overview:
+#### What this script does:
+
+mkctemp stands for **Make Conditions Template**.
+
+This script is a quick and dirty method for generating conditions file templates. The script
+guides the user through a series of prompts, asking questions like: "How many participants
+where involved in this study?", "How many sensors did you use?", etc. It's aim is to then
+generate templates for the user to input values into via manual entry, or copying and pasting
+from another spreadsheet export such as SurveyMonkey or Qualtrics.
+
+#### **This file takes as input**:
+
+Nothing, initially, but the script asks the user for information about their experiment
+in order to produce properly named and configured conditions files. Before running you will need
+to know:
+
+- How many participants are in the experiment.
+- How many sessions were there in the experiment.
+- How many sensors were used in the experiment.
+- What types of sensors were used in the experiment.
+- Their two digit experiment ID. (i.e. if participant IDs are '71'01, '71'02, the experiment
+  ID is the first two digits in the participant ID. '71')
+- How many *total* tasks participants were exposed to per session of experiment.
+
+#### **This script gives as output**:
+
+This file will create a subdirectory in the `exports` folder filled with properly named
+and formatted conditions files templates. For examples of what output of this script should
+look like refer to `./exports/sample_exports/` or `./exports/sample2_exports/` and open up
+the .csv files in your editor of choice.
+
+#### Notes, etc:
+
+It should be noted that these currently include all TLX variables. If you do not want the
+script to generate these values, and wish only to have templates with 'stim', 'onset', and
+'duration' values (which you do need) you can comment out lines `177 - 179` and uncomment
+line `175`.
