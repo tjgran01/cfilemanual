@@ -2,6 +2,48 @@ import csv
 import os
 import time
 
+def get_valid_num_input(prompt):
+    """Checks to make sure that user puts in a valid numerical value (interger,
+    greater than 0). If they do, it returns the inputted number. If not, continue
+    to ask until a valid value is given.
+
+    INPUT: prompt (str)
+    OUTPUT: val (int)"""
+    while True:
+        print(prompt)
+        try:
+            val = int(input(">"))
+            if val > 0:
+                return val
+            print("Please input an interger greater than 0.")
+        except ValueError as e:
+          print(e)
+          print("Please input an interger greater than zero.")
+
+def get_valid_dir_name(prompt):
+    """Checks to make sure that user puts in valid textual value (not empty, no
+    numbers). If they do, function returns the valid input. If not, continues to
+    ask until a valid value is given.
+
+    INPUT: prompt (str)
+    OUTPUT: val (str)"""
+
+    while True:
+      if prompt == "Input a name for the directory you want to export to.":
+          print(prompt)
+          val = input(">")
+          if not os.path.exists(f"{os.getcwd()}/{val}"):
+              try:
+                  os.mkdir(f"{os.getcwd()}/{val}")
+                  return f"{os.getcwd()}/{val}"
+              except:
+                  print("That is not a valid directory name. Try again.")
+          else:
+              print(f"Directory already exists! Will export to: {val}")
+              return f"{os.getcwd()}/{val}"
+
+# The use of while loops throughout this program is to check to make sure
+# that the user input a valid data type in the field.
 while True:
     print("-" * 80)
     print("MIND LAB CONDITIONS FILE TEMPLATE CREATOR.")
@@ -10,21 +52,29 @@ while True:
     print("""In order to create properly format the files, please answer a
 few questions about the experiment.""")
 
-    print("How many participants do you need to make conditions files for?: ")
-    participant_number = int(input(">"))
+# Get number of participants run.
+    prompt = "How many participants do you need to make conditions files for?: "
+    participant_number = get_valid_num_input(prompt)
 
-    print("How many sessions were there in the experiment?: ")
-    total_sessions = int(input(">"))
+# Get number of sessions in experiment.
+    prompt = "How many sessions were there in the experiment?: "
+    total_sessions = get_valid_num_input(prompt)
 
-    print("How many sensors were used on each participant?: ")
-    cond_per_participant = int(input(">"))
+# Get number of sensors used in experiment.
+    prompt = "How many sensors were used on each participant?: "
+    cond_per_participant = get_valid_num_input(prompt)
 
+# Get valid sensor types used in experiment.
     while True:
+# If you do not see your sensor in this list, add it and make a pull request.
+# Please try to keep sensor names 4 chars or less.
         proper_sensors = ["FNIRS", "EDA", "ECG",
                           "EEG", "RESP", "GSR",
                           "EYET"]
         print("Please enter the sensor types separated by a space:")
         sensor_list = input(">")
+        # Splits input into list of inputs, and checks them against current
+        # valid inputs.
         sensor_list = sensor_list.split(" ")
         sensor_list = [s.upper() for s in sensor_list]
         not_proper = [s for s in sensor_list if s not in proper_sensors]
@@ -35,6 +85,8 @@ few questions about the experiment.""")
         print(f"Acceptable values: {proper_sensors}")
         print("-" * 80)
 
+# Gets valid two digit experiment ID. Should eventually include checking current
+# experiments in the dataset to make sure no conflicting filenames are created.
     while True:
         print("Please enter the experient ID number: ")
         experiment_id = input(">")
@@ -45,33 +97,30 @@ few questions about the experiment.""")
         print(f"Acceptable values must be a two digit interger.")
         print("-" * 80)
 
+# Gets number of tasks per session.
     task_num_per_session = []
     for i, session in enumerate(range(0, total_sessions)):
-        while True:
-            if total_sessions == 1:
-                print("How many tasks were in the experiment?")
-            else:
-                print(f"How many tasks were in session {i + 1}?: ")
-            try:
-                task_num = int(input(">"))
-            except ValueError as e:
-                print(e)
-                print("Please enter an interger.")
-            if task_num > 0:
-                task_num = int(task_num)
-                task_num_per_session.append(task_num)
-                break
-            else:
-                print("Task Number must be an interger greater than zero.")
+        if total_sessions == 1:
+            prompt = "How many tasks were in the experiment?"
+        else:
+            prompt = f"How many tasks were in session {i + 1}?: "
+        task_num = get_valid_num_input(prompt)
+        task_num_per_session.append(task_num)
 
-
+# Based on user input, this is the total amount of files that need to be
+# generated.
     total_files = participant_number * cond_per_participant * total_sessions
 
+# Make directory "exports" if it doesn't already exist, and move into it.
     if not os.path.exists(f"{os.getcwd()}/exports/"):
         os.mkdir(f"{os.getcwd()}/exports/")
-
     os.chdir(f"{os.getcwd()}/exports/")
 
+    prompt = "Input a name for the directory you want to export to."
+    export_dir = get_valid_dir_name(prompt)
+
+# Prints out a list of filenames, and file information for the user to review
+# before generating the files.
     fnames = []
     for i_session, session in enumerate(range(0, total_sessions)):
         for i_cond, cond in enumerate(range(0, cond_per_participant)):
@@ -87,34 +136,15 @@ few questions about the experiment.""")
     print("Above are the file names that will be generated by this script.")
     for i, task_num in enumerate(task_num_per_session):
         print(f"Session {i + 1} has {task_num} tasks.")
-    print("Do the above appear to be correct?: ")
+    print(f"Files will be exported to: {export_dir}")
+    print("Does the above information appear to be correct?: ")
     ans = input("(Y/n)")
     if ans[0].upper() == "Y":
+        os.chdir(export_dir)
         break
     print("Okay, lets try again then.")
     time.sleep(2)
     os.system("clear")
-
-# while True:
-#     print("Input a directory name for your files to go in (letters, and '_'s only): ")
-#     user_dir = input(">")
-#
-#     if os.path.exists(f"{os.getcwd()}/{user_dir}"):
-#         print(f"Directory, '{os.getcwd()}/{user_dir}' already exists. Use? (Y/n)")
-#         ans = input(">")
-#         if ans[0].upper == "Y":
-#             os.chdir(f"{user_dir}")
-#         else:
-#             print("Okay, enter a new name.")
-#     elif user_dir.replace("_", "").isalpha():
-#         os.mkdir(f"{os.getcwd()}/{user_dir}")
-#         os.chdir(f"{user_dir}")
-#         break
-#     else:
-#         print(f"{user_dir} is not a valid directory name. Try something else.")
-#
-#     if ans[0].upper() == "Y":
-#         break
 
 for fname in fnames:
     for i, task_num in enumerate(task_num_per_session):
