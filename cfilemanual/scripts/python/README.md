@@ -2,6 +2,7 @@
 1. [Overview](#overview)
 2. [Scripts](#scripts)
     - [mkctemp.py](#mkctemppy)
+    - [get_qualtrics.py](#get_qualtricspy)
 
 # Overview
 
@@ -108,6 +109,53 @@ to know:
 - Their two digit experiment ID. (i.e. if participant IDs are '71'01, '71'02, the experiment
   ID is the first two digits in the participant ID. '71')
 - How many *total* tasks participants were exposed to per session of experiment.
+
+#### *This script gives as output*:
+
+This file will create a subdirectory in the `exports` folder filled with properly named
+and formatted conditions files templates. For examples of what output of this script should
+look like refer to `./exports/sample_exports/` or `./exports/sample2_exports/` and open up
+the .csv files in your editor of choice.
+
+#### Notes, etc:
+
+It should be noted that these currently include all TLX variables. If you do not want the
+script to generate these values, and wish only to have templates with 'stim', 'onset', and
+'duration' values (which you do need) you can comment out lines `177 - 179` and uncomment
+line `175`.
+
+---
+
+## get_qualtrics.py
+
+##### Created: 3/2018
+##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
+##### Created for: Automated retrieval of Qualtrics data in the form of a .csv file using Qualtrics API.
+
+#### What this script does:
+
+This script is more of a helper script for the `pan_qualtrics.py` script, but it may also be used
+on it's own if they user just wants to view a data export without having to sign into their
+Qualtrics account. The main function of the script is to take a user's API key and survey ID and
+return a .csv file with all of the response data into the current directory called named
+`MyQualtricsDownload`.
+
+As this script was only amended by the author to have better error handling and to be more modular,
+a more full-fledged documentation for this script can be found at:
+
+https://api.qualtrics.com/docs/response-exports.
+
+If you do not know your API key, survey ID, and aren't sure where to find either. Read the
+documentation published at:
+
+https://api.qualtrics.com/docs/overview
+
+If you still have questions, concerns, feel free to contact the author of this script.
+
+#### *This file takes as input*:
+
+
 
 #### *This script gives as output*:
 
