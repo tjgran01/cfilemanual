@@ -159,14 +159,5 @@ If you still have questions, concerns, feel free to contact the author of this s
 
 #### *This script gives as output*:
 
-This file will create a subdirectory in the `exports` folder filled with properly named
-and formatted conditions files templates. For examples of what output of this script should
-look like refer to `./exports/sample_exports/` or `./exports/sample2_exports/` and open up
-the .csv files in your editor of choice.
 
 #### Notes, etc:
-
-It should be noted that these currently include all TLX variables. If you do not want the
-script to generate these values, and wish only to have templates with 'stim', 'onset', and
-'duration' values (which you do need) you can comment out lines `177 - 179` and uncomment
-line `175`.
