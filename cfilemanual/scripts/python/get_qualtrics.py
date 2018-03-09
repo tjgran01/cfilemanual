@@ -8,7 +8,18 @@ import time
 
 from inputmanager import InputManager
 
+
 def get_survey_information(apiToken, dataCenter="ca1"):
+    """Prints a list of the current survey names and corresponding Ids and asks
+    the user which survey they want to recieve an export from.
+
+    Args:
+        apiToken(str): A string of characters that allows allows authentication
+        when querying the Qualtrics API.
+        dataCenter(str): Data center arguement for Qualtrics API.
+    Returns:
+        surveyID(str): A unique ID corresponding the to survey the user wants to
+        retreieve survey responses for."""
 
     baseUrl = f"https://{dataCenter}.qualtrics.com/API/v3/surveys"
     headers = {
@@ -39,7 +50,20 @@ def get_survey_information(apiToken, dataCenter="ca1"):
         return surveyId
     return False
 
+
 def get_survey_id(apiToken):
+    """Attemps to find surveyId in a local file. If it cannot it calls
+    'get_survey_information'.
+
+    Args:
+        apiToken(str): A string of characters that allows allows authentication
+        when querying the Qualtrics API.
+    Returns:
+        surveyID(str): A unique ID corresponding the to survey the user wants to
+        retreieve survey responses for.
+        Bool(False): If a surveyId isn't selected or found.
+    Rasies:
+        FileNotFoundError: if there is currently not a file that stores the surveyId."""
 
     try:
         with open(f"{os.getcwd()}/.ids/surveyid.txt") as in_file:
@@ -67,6 +91,7 @@ def get_api_fpath():
         return fpath
 
     return False
+    
 
 def get_api_token():
     """Attempts to locate a file that contains the user's API Token for their
@@ -116,8 +141,8 @@ def main(surveyId, apiToken, fileFormat="csv", dataCenter="ca1"):
     https://api.qualtrics.com/docs/response-exports
 
     Args:
-        surveyID(str): A unique ID corresponding the to survey you want to retreieve
-        survey responses for. instructions for finding your survey ID are located at:
+        surveyID(str): A unique ID corresponding the to survey the user wants to
+        retreieve survey responses for. instructions for finding your survey ID are located at:
         https://www.qualtrics.com/support/integrations/api-integration/finding-qualtrics-ids/
         apiToken(str): A string of characters that allows allows authentication
         when querying the Qualtrics API.

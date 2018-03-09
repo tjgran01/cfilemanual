@@ -11,12 +11,10 @@ col_to_drop = ["ResponseID", "ResponseSet", "IPAddress", "StartDate", "EndDate",
                "ExternalDataReference",	"Finished", "Status", "LocationLatitude",
                "LocationLongitude",	"LocationAccuracy"]
 
-if getpass.getuser() == "trevorgrant":
-    surveyId = "SV_9BLyhlbhdzb77r7"
-    apiToken = get_qualtrics.get_api_token()
-    get_qualtrics.main(surveyId, apiToken)
-else:
-    get_qualtrics.main()
+if not os.path.exists(f"{os.getcwd()}/MyQualtricsDownload/"):
+	apiToken = get_qualtrics.get_api_token()
+	surveyId = get_qualtrics.get_survey_id(apiToken)
+	get_qualtrics.main(surveyId, apiToken)
 
 file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
 df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
