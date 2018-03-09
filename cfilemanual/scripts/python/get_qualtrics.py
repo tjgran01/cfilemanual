@@ -19,9 +19,11 @@ def get_survey_information(apiToken, dataCenter="ca1"):
         dataCenter(str): Data center arguement for Qualtrics API.
     Returns:
         surveyID(str): A unique ID corresponding the to survey the user wants to
-        retreieve survey responses for."""
+        retreieve survey responses for.
+        Bool(False): If a surveyId isn't selected or found."""
 
     baseUrl = f"https://{dataCenter}.qualtrics.com/API/v3/surveys"
+
     headers = {
         "x-api-token": apiToken,
         }
@@ -31,6 +33,11 @@ def get_survey_information(apiToken, dataCenter="ca1"):
 
     print("\nBelow are the surveys listed under your qualtrics account:\n")
     print("-" * 80)
+    if len(survey_info) == 0:
+        print("There are no surveys associated with your Qualtrics account.")
+        print("Quitting this program.. .. ..")
+        sys.exit()
+
     for i, survey in enumerate(survey_info):
         print(f"{i + 1}. - Survey Name: {survey['name']}")
         print(f"Survey ID: {survey['id']}")
@@ -72,7 +79,9 @@ def get_survey_id(apiToken):
     except FileNotFoundError:
         print("ERROR: Unable to locate '/ids/surveyid.txt'.")
         surveyId = get_survey_information(apiToken)
-        return surveyId
+        if surveyId:
+            return surveyId
+        return False
 
 
 def get_api_fpath():
@@ -91,7 +100,7 @@ def get_api_fpath():
         return fpath
 
     return False
-    
+
 
 def get_api_token():
     """Attempts to locate a file that contains the user's API Token for their
