@@ -2,9 +2,54 @@ import requests
 import zipfile
 import json
 import io
+import os
 import sys
+import time
 
 from inputmanager import InputManager
+
+def get_survey_information(apiToken, dataCenter="ca1"):
+
+    baseUrl = f"https://{dataCenter}.qualtrics.com/API/v3/surveys"
+    headers = {
+        "x-api-token": apiToken,
+        }
+
+    response = requests.get(baseUrl, headers=headers)
+    survey_info = json.loads(response.text)['result']['elements']
+
+    print("\nBelow are the surveys listed under your qualtrics account:\n")
+    print("-" * 80)
+    for i, survey in enumerate(survey_info):
+        print(f"{i + 1}. - Survey Name: {survey['name']}")
+        print(f"Survey ID: {survey['id']}")
+        print("-" * 80)
+
+    prompt = ("Which survey would you like to export? \n(indicate the survey by typing the number listed next to the survey): ")
+    survey_response = InputManager.get_numerical_input(prompt, (len(survey_info)))
+    surveyId = survey_info[survey_response - 1]['id']
+    if surveyId:
+        prompt = "Would you like to save this as your default survey? \n(Answering yes will save the id to '/.ids/surveyid.txt')"
+        ans = InputManager.get_yes_or_no(prompt)
+        if ans:
+            if not os.path.exists(f"{os.getcwd()}/.ids/"):
+                os.mkdir(f"{os.getcwd()}/.ids/")
+            with open (f"{os.getcwd()}/.ids/surveyid.txt", "w") as out_file:
+                out_file.write(surveyId)
+        return surveyId
+    return False
+
+def get_survey_id(apiToken):
+
+    try:
+        with open(f"{os.getcwd()}/.ids/surveyid.txt") as in_file:
+            surveyId = in_file.read()
+            return surveyId
+    except FileNotFoundError:
+        print("ERROR: Unable to locate '/ids/surveyid.txt'.")
+        surveyId = get_survey_information(apiToken)
+        return surveyId
+
 
 def get_api_fpath():
     """Allows user to manually import filepath that and contains their API token.
@@ -65,7 +110,7 @@ def get_api_token():
         sys.exit()
 
 
-def main(surveyId, apiToken):
+def main(surveyId, apiToken, fileFormat="csv", dataCenter="ca1"):
     """Qualtrics API request. Edited slightly for better error handling. For
     more information on what this file is doing see the documentation at:
     https://api.qualtrics.com/docs/response-exports
@@ -78,10 +123,6 @@ def main(surveyId, apiToken):
         when querying the Qualtrics API.
     Returns:
         .csv export of all current survey data."""
-
-    # setting export parameters
-    fileFormat = "csv"
-    dataCenter = 'ca1'
 
     # Setting static parameters
     requestCheckProgress = 0
@@ -118,6 +159,9 @@ def main(surveyId, apiToken):
 
 
 if __name__ == "__main__":
-    surveyId = "SV_9BLyhlbhdzb77r7"
     apiToken = get_api_token()
+    surveyId = get_survey_id(apiToken)
+    if not apiToken or not surveyId:
+        print("ERROR: Missing either apiToken or surveyId. Cannot generate export.")
+        sys.exit()
     main(surveyId, apiToken)

@@ -1,7 +1,9 @@
 # Table of Contents
 1. [Overview](#overview)
 2. [Scripts](#scripts)
+    - [inputmanager.py](#inputmanagerpy)
     - [mkctemp.py](#mkctemppy)
+    - [pan_qualtrics.py](#pan_qualtricspy)
     - [get_qualtrics.py](#get_qualtricspy)
 
 # Overview
@@ -14,7 +16,7 @@ phase to the modeling phase (you know, the fun part).
 
 ### To Contribute to this arm of the project.
 
-Research is a collaborative endeavor with a high rate of churn which can be a great thing.
+Research is a collaborative endeavor with a high rate of churn - which can be a great thing -
 It allows teams to exchange ideas, knowledge, and domain expertise to others
 throughout the research community organically! Yay! There is an upshot to this, however,
 illustrated by the example below.
@@ -23,20 +25,21 @@ illustrated by the example below.
 > (Congrats, Fictitious Jim!), leaves his previous team with a bunch of useful scripts,
 > but without the knowledge of how to properly utilize them. Fictitious Jim will not
 > have the time at his new position to constantly train, or explain to new team members,
-> how to use these scripts, so Fictitious Jim essentially wasted his time writing good,
+> how to use these scripts. Fictitious Jim essentially wasted his time writing good,
 > generic code that could have saved future teams hours of work. Why? Because although
 > Fictitious Jim is a computer wizard, he flat out stinks at commenting and documenting his code.
 >
 > WARNING: Don't be like Fictitious Jim.
 
-In order to avoid a Fictitious Jim type situation at the MIND lab additional scripts,
-or edits to scripts, will not be allowed into this repo without corresponding, *complete*, documentation.
+In order to avoid a Fictitious Jim type situation at the MIND lab: additional scripts,
+or edits to scripts, will not be allowed into this repo without corresponding, *complete*,
+documentation.
 
-This mean that for every commit a developer makes to this repo they also need to include:
+This means that for every commit a developer makes to this repo they also need to include:
 
 1. In line comments for non-function related changes.
 
-  - Use your head when it comes to this, if you're just printing something out, you
+  - Use your head when it comes to this, if you're just printing something out you
     probably don't exhaustive documentation, but things like indexing certain elements
     in lists should probably include an in line comment explaining what you are grabbing
     from a list because it is not always clear.
@@ -52,7 +55,7 @@ This mean that for every commit a developer makes to this repo they also need to
    No matter how clear you think your code is, always assume it isn't. Comments and
    docstrings are quite literally free.
 
-  - Dest practice is to write out what the inputs and outputs are for any function, that way
+  - Best practice is to write out what the inputs and outputs are for any function, that way
   no one has to read the function line by line to understand what it does.
 
 3. An Update to this file, and it's table of contents.
@@ -63,11 +66,37 @@ This mean that for every commit a developer makes to this repo they also need to
 as well.
 
 If in doubt, consider your audience might be users who are wholly unfamiliar with programming.
-Or, assume I (who am looking over your code), is an idiot. Which is not a wholly unfound assumption.
+Or, assume I (who am looking over your code), am an idiot. Which is not a wholly unfound assumption.
 
 For questions or suggestions on formatting, etc, feel free to contact Trevor Grant at tjgran01@syr.edu.
 
 # Scripts
+
+## inputmanager.py
+
+##### Created: 3/2018
+##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
+##### Created for: Sanitizing and better handling user input to avoid allowing the user to put invalid parameters into scripts in this repository.
+
+#### What this script does:
+
+This script currently houses one class, known as `InputManager`. This class contains methods
+for handling various user facing prompts like asking a user to input an integer value, or asking
+the user to respond to a yes or no question.
+
+#### *This file takes as input*:
+
+All of these functions take a prompt to display to a user as an argument. Some methods require
+additional arguments in order to function.
+
+#### *This script gives as output*:
+
+Sanitized user input to avoid the user inputting values which would cause the program to halt.
+
+#### Notes, etc:
+
+This script will be updated in the event that scripts in this repository require different types of user input.
 
 ## mkctemp.py
 
@@ -124,7 +153,28 @@ script to generate these values, and wish only to have templates with 'stim', 'o
 'duration' values (which you do need) you can comment out lines `177 - 179` and uncomment
 line `175`.
 
----
+## pan_qualtrics.py
+
+##### Created: 3/2018
+##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
+##### Created for: Taking the survey data from a Qualtrics survey and putting it into a useable format for model generation - a conditions file.
+
+#### What this script does:
+
+
+
+#### *This file takes as input*:
+
+
+
+#### *This script gives as output*:
+
+
+
+#### Notes, etc:
+
+
 
 ## get_qualtrics.py
 
@@ -135,14 +185,14 @@ line `175`.
 
 #### What this script does:
 
-This script is more of a helper script for the `pan_qualtrics.py` script, but it may also be used
-on it's own if they user just wants to view a data export without having to sign into their
+This script is a helper script for the `pan_qualtrics.py` script, but it may also be used
+on it's own if the user just wants to view a data export without having to sign into their
 Qualtrics account. The main function of the script is to take a user's API key and survey ID and
 return a .csv file with all of the response data into the current directory called named
 `MyQualtricsDownload`.
 
 As this script was only amended by the author to have better error handling and to be more modular,
-a more full-fledged documentation for this script can be found at:
+a full-fledged documentation for this script can be found at:
 
 https://api.qualtrics.com/docs/response-exports.
 
@@ -155,9 +205,30 @@ If you still have questions, concerns, feel free to contact the author of this s
 
 #### *This file takes as input*:
 
+Nothing initially, but in order for this script to work you will need:
 
+- A Qualtrics API token (There is a helper function in the script to point the program to the file
+  where your API token is located.)
+- A survey ID for the survey you would like to get the data from.
+
+Neither of these variables are included in the repo because, well, it wouldn't do anyone
+(especially myself) much good to give out my API Key all willy-nilly, and you're (presumably)
+not interested in analyzing my experiment for me.
+
+Information of how to obtain and store the above pieces of information can be found in via
+the two urls posted in the overview section of this script.
 
 #### *This script gives as output*:
 
+The script will create a sub-directory in the directory in which this script is run called:
+`MyQualtricsDownload`. Inside of this folder will be a .csv export of the survey data corresponding
+to the surveyID used as input to the program.
 
 #### Notes, etc:
+
+<s>More work needs to be done to include helper functions to help the user input their survey ID
+properly. For now, a user can replace the value that is hard coded into the script.</s> - **DONE**
+
+**DO NOT INCLUDE YOUR API TOKEN IN THIS REPOSITORY. IF YOU PUBLISH YOUR API TOKEN
+ONLINE ANYONE WITH AN INTERNET CONNECTION WILL HAVE ACCESS TO YOUR SURVEY DATA.
+THIS IS WHAT WE REFER TO IN THE BIZ AS 'BAD NEWS BEARS'.**

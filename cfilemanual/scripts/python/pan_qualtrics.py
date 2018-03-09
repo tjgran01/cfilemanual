@@ -5,6 +5,7 @@ import getpass
 import get_qualtrics
 from inputmanager import InputManager
 
+# cols not needed in qualtrics export.
 col_to_drop = ["ResponseID", "ResponseSet", "IPAddress", "StartDate", "EndDate",
 	           "RecipientLastName",	"RecipientFirstName", "RecipientEmail",
                "ExternalDataReference",	"Finished", "Status", "LocationLatitude",

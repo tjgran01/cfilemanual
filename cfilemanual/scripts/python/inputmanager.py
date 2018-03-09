@@ -32,26 +32,26 @@ class InputManager(object):
             extra_options: optional arguement if there is an extra argument
             outside of 'num_options'
         Returns:
-            ans: sanitised answer to the prompt."""
+            ans: sanitized answer to the prompt."""
         while True:
             print(prompt)
             try:
                 ans = int(input("> "))
             except ValueError:
-                print("You need to enter a number, fella.")
+                print("You need to enter a number.")
                 continue
             if not extra_option:
                 if re.match(f"^[1-{str(num_options)}]$", str(ans)):
                     return ans
                 else:
-                    print("That's not a valid answer, bud.")
+                    print("That's not a valid answer.")
             else:
                 if re.match(f"^[1-{str(num_options)}]$", str(ans)):
                     return ans
                 if ans == extra_option:
                     return ans
                 else:
-                    print("That's not a valid answer, bud.")
+                    print("That's not a valid answer.")
 
 
     def get_valid_fpath(prompt):
@@ -63,7 +63,7 @@ class InputManager(object):
         Returns:
             fpath(str): location of the file.
         """
-        
+
         while True:
             print(prompt)
             fpath = input("> ")
