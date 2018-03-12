@@ -118,7 +118,7 @@ def get_api_token():
 
     try:
     # replace address below with .txt file where your API key is stored.
-        with open ("/Users/trevorgrant/api_tokens/syrqual.txt") as in_file:
+        with open ("/Users/trevorgrant/api_token/syrqual.txt") as in_file:
             # [:-1] removes extra whitespace.
             apiToken = in_file.read()[:-1]
             return apiToken
@@ -137,7 +137,7 @@ def get_api_token():
                           " to the documentation if you are confused by this message.\n")
                     break
             print("ERROR: Unable to locate an API token. Please alter 'get_qualtrics.py'",
-                  ": line 25 to the current location of API token. Please refer"
+                  ": line 126 to the current location of API token. Please refer"
                   " to the documentation if you are confused by this message.\n")
             break
 

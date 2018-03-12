@@ -71,6 +71,6 @@ class InputManager(object):
                 with open (fpath) as in_file:
                     data = in_file.read()
                 return fpath
-            except FileNotFoundError:
+            except (FileNotFoundError, IsADirectoryError) as error:
                 print("Hmm. Looks like that is not a valid filepath. Try again.")
                 print("To quit the program enter control-c.")
