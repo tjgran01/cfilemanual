@@ -25,7 +25,7 @@ illustrated by the example below.
 > (Congrats, Fictitious Jim!), leaves his previous team with a bunch of useful scripts,
 > but without the knowledge of how to properly utilize them. Fictitious Jim will not
 > have the time at his new position to constantly train, or explain to new team members,
-> how to use these scripts. Fictitious Jim essentially wasted his time writing good,
+> how to use these scripts. Fictitious Jim kind of just wasted his time writing good,
 > generic code that could have saved future teams hours of work. Why? Because although
 > Fictitious Jim is a computer wizard, he flat out stinks at commenting and documenting his code.
 >
@@ -58,7 +58,11 @@ This means that for every commit a developer makes to this repo they also need t
   - Best practice is to write out what the inputs and outputs are for any function, that way
   no one has to read the function line by line to understand what it does.
 
+  - Don't be like this repo's author and try to name functions and variables with names
+  that make sense. `foo`s and `bar`s can go `foobar` themselves.
+
 3. An Update to this file, and it's table of contents.
+
   - Every script will have it's own section in this file, and will also have it's own link
     to that section in the TOC.
 
@@ -82,13 +86,13 @@ For questions or suggestions on formatting, etc, feel free to contact Trevor Gra
 #### What this script does:
 
 This script currently houses one class, known as `InputManager`. This class contains methods
-for handling various user facing prompts like asking a user to input an integer value, or asking
-the user to respond to a yes or no question.
+for handling various user facing prompts like asking a user to input an integer value,
+or asking the user to respond to a yes or no question.
 
 #### *This file takes as input*:
 
 All of these functions take a prompt to display to a user as an argument. Some methods require
-additional arguments in order to function.
+additional arguments in order to function. See the docstrings in the source for details.
 
 #### *This script gives as output*:
 
@@ -96,7 +100,8 @@ Sanitized user input to avoid the user inputting values which would cause the pr
 
 #### Notes, etc:
 
-This script will be updated in the event that scripts in this repository require different types of user input.
+This script will be updated in the event that scripts in this repository require different
+types of user input.
 
 ## mkctemp.py
 
@@ -116,14 +121,19 @@ generate templates for the user to input values into via manual entry, or copyin
 from another spreadsheet export such as SurveyMonkey or Qualtrics.
 
 If a researcher does not intend to create conditions files by hand then the output from this
-script will also serve as a backbone to 'check' the marks in the data to ensure that everything is
-correctly lining up. This means that a researcher should run this script first because it will
-also act as a sanity checker to ensure that the automated conditions file generation scripts are
-a) working properly and b) The data fed into the system isn't inconsistent with what the
-experimenter is expecting. For example - if during the creation of this script the experimenter
-states that session 1 of the experiment has 20 tasks, but the data is marked with 22 onsets, then
-the experimenter knows that there might be something odd about a particular dataset, and can further
-examine the data to ensure that everything is accurate.
+script will also serve as a backbone to 'check' the marks in the data to ensure that
+everything is correctly lining up. This means that a researcher should run this script first
+because it will also act as a sanity checker to ensure that the automated conditions file
+generation scripts are
+
+1. Working properly and that -
+2. The data fed into the system isn't inconsistent with what the experimenter is expecting.
+
+For example -
+If during the creation of this script the experimenter states that session 1 of the experiment
+has 20 tasks, but the data is marked with 22 onsets, then the experimenter knows that there
+might be something odd about a particular dataset, and can further examine the data to ensure
+that everything is accurate.
 
 #### *This file takes as input*:
 
@@ -229,6 +239,9 @@ to the surveyID used as input to the program.
 <s>More work needs to be done to include helper functions to help the user input their survey ID
 properly. For now, a user can replace the value that is hard coded into the script.</s> - **DONE**
 
-**DO NOT INCLUDE YOUR API TOKEN IN THIS REPOSITORY. IF YOU PUBLISH YOUR API TOKEN
-ONLINE ANYONE WITH AN INTERNET CONNECTION WILL HAVE ACCESS TO YOUR SURVEY DATA.
-THIS IS WHAT WE REFER TO IN THE BIZ AS 'BAD NEWS BEARS'.**
+**__DO NOT INCLUDE YOUR API TOKEN IN THIS REPOSITORY__.:
+
+IF YOU PUBLISH YOUR API TOKEN ONLINE ANYONE WITH AN INTERNET CONNECTION WILL
+HAVE ACCESS TO YOUR SURVEY DATA. THIS IS WHAT WE REFER TO IN THE BIZ AS 'BAD NEWS
+BEARS' (at the very least), AND 'A FEDERAL CRIME' (at worst, but it's a pretty bad
+'at worst' if I'm to be honest).**

@@ -74,3 +74,11 @@ class InputManager(object):
             except (FileNotFoundError, IsADirectoryError) as error:
                 print("Hmm. Looks like that is not a valid filepath. Try again.")
                 print("To quit the program enter control-c.")
+
+
+    def get_variable_name(prompt):
+        while True:
+            print(prompt)
+            ans = input("> ")
+            if len(ans) > 0 and " " not in ans:
+                return ans
