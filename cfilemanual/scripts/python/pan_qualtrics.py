@@ -1,9 +1,11 @@
 import pandas as pd
 import os
 import getpass
+import csv
 
 import get_qualtrics
 from inputmanager import InputManager
+
 
 def check_if_download():
 	if not os.path.exists(f"{os.getcwd()}/MyQualtricsDownload/"):
@@ -11,21 +13,55 @@ def check_if_download():
 		surveyId = get_qualtrics.get_survey_id(apiToken)
 		get_qualtrics.main(surveyId, apiToken)
 
+
 def get_experiment_id(par_id):
 
 	exper_id = par_id[:2]
 	return exper_id
 
-def make_c_files(par_ids):
-	par_ids.pop(0)
-	exper_id = get_experiment_id(par_ids[0])
+
+def make_c_files(par_id, csv_data, sensor_type="fNIRS", session_num="1"):
+
+	exper_id = par_id[:2]
+	csv_data = zip(*csv_data)
 
 	if not os.path.exists(f"./experiment_{exper_id}_cfiles/"):
-		os.mkdir(f"./experiment_99{exper_id}_cfiles/")
+		os.mkdir(f"./experiment_{exper_id}_cfiles/")
 
-	for par_id in par_ids:
-		with open(f"./experiment_99{exper_id}_cfiles/{par_id}_FNIRS_conditions_s1.csv", "w") as out_csv:
-			out_csv.write()
+	file_name = f"./experiment_{exper_id}_cfiles/{par_id}_{sensor_type}_conditions_s{session_num}.csv"
+
+	with open(file_name, "w") as out_csv:
+		writer = csv.writer(out_csv, delimiter=",")
+
+		for row in csv_data:
+			writer.writerow(row)
+
+
+def get_slice_points(indexer_list):
+	# Scans question text to determine where stim is entered by experimentor.
+	slice_points = []
+	for i, row in enumerate(indexer_list):
+		if row == slice_prompt:
+			slice_points.append(i)
+	return(slice_points)
+
+
+def count_survey_questions(slice_points):
+
+	num_questions = []
+	for i, slice_point in enumerate(slice_points):
+		if i == 0:
+			x = 0
+		y = slice_point
+		question_num = abs((x - y))
+		num_questions.append(question_num)
+		x = slice_point
+	return num_questions[1:]
+
+
+def check_num_questions(num_questions):
+	return len(set(num_questions)) <= 1
+
 
 def main(col_to_drop, slice_prompt):
 	check_if_download()
@@ -41,24 +77,39 @@ def main(col_to_drop, slice_prompt):
 	df.set_index("enter_par_id", inplace=True)
 
 	indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
+	slice_points = get_slice_points(indexer_list)
+	num_questions = count_survey_questions(slice_points)
+	questions_equal = check_num_questions(num_questions)
+	if questions_equal:
+		survey_length = num_questions[0]
+		print(f"The Survey was {survey_length} questions long.")
+		print(f"The experiment so far has had {num_participants} participant(s).")
+	else:
+		print("Something must've happened.")
+		sys.exit()
 
-	slice_points = []
-	for i, row in enumerate(indexer_list):
-		if row == slice_prompt:
-			slice_points.append(i)
 
-	list_of_tasks = []
+	all_surveys_list = []
 	for index, row in df.iterrows():
 		if index.isnumeric():
+			par_id = index
+			print(par_id)
 			list_row = row.tolist()
-			task_list = []
-			for i, cell in enumerate(list_row):
-				for val in slice_points:
-					if i == val:
-						print(cell)
+			head_cir = list_row.pop(0)
+			if len(list_row) % survey_length == 0:
 
-
-	# make_c_files(par_ids)
+				csv_data = []
+				task_num = int(len(list_row) / survey_length)
+				for x in range(0, task_num - 1):
+					start_cell = (survey_length * x)
+					end_cell = (start_cell + 8)
+					task_answers = list_row[start_cell:end_cell]
+					task_answers.insert(0, f"Task{x + 1}")
+					csv_data.append(task_answers)
+				make_c_files(par_id, csv_data)
+			else:
+				print("Inconsistent number of questions. Exiting Program.")
+				sys.exit()
 
 
 if __name__ == "__main__":
