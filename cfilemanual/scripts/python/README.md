@@ -172,19 +172,32 @@ line `175`.
 
 #### What this script does:
 
-
+This script takes information from a .csv file downloaded from `get_qualtrics.py` and
+generates all of the conditions files (for the fNIRS currently) based on the survey
+information.
 
 #### *This file takes as input*:
 
-
+If `get_qualtrics.py` has not been run (or if the user renamed the `MyQualtricsDownload`
+subdirectory in which this script is running), then this script will take the user through
+the same process in `get_qualtrics.py`. Once that file in generated, the user will need
+only to provide a value for each of the survey questions given in their survey. These values
+are provided during runtime of this script. The values provided to the program act as the row
+headings for the conditions files.
 
 #### *This script gives as output*:
 
-
+Quasi-completed conditions files. The files will be exported to a sub-directory in the
+directory in which the script is run named `experiment_xx_cfiles` where xx equals the
+experiment ID (the first two numbers in a participant IDs).
 
 #### Notes, etc:
 
+- Docstrings have been created, but this code still needs to be cleaned up and improved upon
+in future updates.
 
+- Functionality should be included to create dictionaries of question sets,
+so if users use multiple surveys they can input them without having to type out every value.
 
 ## get_qualtrics.py
 

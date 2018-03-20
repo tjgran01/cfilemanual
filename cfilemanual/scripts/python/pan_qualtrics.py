@@ -90,7 +90,12 @@ def make_c_files(par_id, csv_data, q_measures,
 		writer = csv.writer(out_csv, delimiter=",")
 
 		for i, row in enumerate(csv_data):
+			if i == 0:
+				total_col = len(row)
 			row.insert(0, q_measures[i])
+			if q_measures[i] == "onset" or q_measures[i] == "duration":
+				for x in range(total_col):
+					row.append("")
 			writer.writerow(row)
 
 
@@ -141,7 +146,7 @@ def check_num_questions(num_questions):
 		num_questions(int): The amount of questions in a survey.
 	Returns:
 		Bool: True is num_questions > 1."""
-		
+
 	return len(set(num_questions)) <= 1
 
 

@@ -1,6 +1,6 @@
 ,Task1,Task2,Task3,Task4,Task5
-onset
-duration
+onset,,,,,
+duration,,,,,
 stim,4,4,2,8,2
 tlx,1,1,1,1,1
 tlx_mental,6,3,5,8,3
