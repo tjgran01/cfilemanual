@@ -8,6 +8,13 @@ from inputmanager import InputManager
 
 
 def check_if_download():
+	"""Checks to see if the Qualtrics Download is in the current directory. Runs
+	get_qualtrics.py the directory is not found.
+
+	Args:
+		None
+	Returns:
+		None"""
 	if not os.path.exists(f"{os.getcwd()}/MyQualtricsDownload/"):
 		apiToken = get_qualtrics.get_api_token()
 		surveyId = get_qualtrics.get_survey_id(apiToken)
@@ -15,11 +22,22 @@ def check_if_download():
 
 
 def get_q_measures(num_questions):
+	"""Prompts the user in input the operational conditionals value titles for
+	all of the questions in their survey. These value titles will serve as row
+	headings in the conditions files.
+
+	Args:
+		num_questions(int): Number of questions administered in a survey given
+		the the participant after each task.
+	Returns:
+		q_measures(list): A list of the row headings for the completed
+		conditions file."""
 
 	keyword_measures = {"tlx": ["", "onset", "duration", "stim", "tlx",
 								"tlx_mental", "tlx_physical",
 								"tlx_temporal", "tlx_performance",
-								"tlx_effort", "tlx_frustration"]
+								"tlx_effort", "tlx_frustration"],
+						"mrq": ["", "onset", "duration", "stim", "mrq"],
 						}
 
 	q_measures = []
@@ -29,7 +47,9 @@ def get_q_measures(num_questions):
 		elif x == 1:
 			q_measures.append("stim")
 		else:
-			measure = InputManager.get_variable_name(f"Please enter the measurement name for question {x + 1} in the survey.")
+			prompt = (f"Please enter the measurement name for"
+						f"question {x + 1} in the survey.")
+			measure = InputManager.get_variable_name(prompt)
 			q_measures.append(measure)
 			if measure in keyword_measures:
 				return keyword_measures[measure]
@@ -39,6 +59,20 @@ def get_q_measures(num_questions):
 
 def make_c_files(par_id, csv_data, q_measures,
 				 sensor_type="fNIRS", session_num="1"):
+	"""Creates a .csv file, called a conditions file and exports it to a
+	subdirectory in the directory in which this script is run.
+
+	Args:
+		par_id(str): The participant's ID in the study.
+		csv_data(list): The survey data gathered from the qualtrics export for
+		the corresponding participant.
+		q_measures(list): The row headings for the exported .csv file.
+		sensor_type(str): Sensor for which the conditions file is being made.
+		Used in the naming of the conditions file.
+		session_num(str): The session number for which the file is being made.
+		Used in the naming of the conditions file.
+	Returns:
+		None"""
 
 	exper_id = par_id[:2]
 	csv_data = zip(*csv_data)
@@ -60,7 +94,18 @@ def make_c_files(par_id, csv_data, q_measures,
 			writer.writerow(row)
 
 
-def get_slice_points(indexer_list):
+def get_slice_points(indexer_list, slice_prompt):
+	"""Scans across the indexer list to determine where tasks begin and end in
+	a Qualtrics export .csv file.
+
+	Args:
+		indexer_list(list): A list of the question headings row in the Qualtrics
+		.csv export file.
+		slice_prompt(str): The first question given to a participant after they
+		complete each task.
+	Returns:
+		slice_points(list): A list of the index values in the .csv where the
+		first question in the after task survey begins."""
 	# Scans question text to determine where stim is entered by experimentor.
 	slice_points = []
 	for i, row in enumerate(indexer_list):
@@ -70,6 +115,13 @@ def get_slice_points(indexer_list):
 
 
 def count_survey_questions(slice_points):
+	"""Calculates the amount of questions between each task.
+
+	Args:
+		slice_points(list): A list of the index values in the .csv where the
+		first question of the after task survey begins.
+	Returns:
+		num_questions[1:](int): The amount of questions in a survey."""
 
 	num_questions = []
 	for i, slice_point in enumerate(slice_points):
@@ -83,6 +135,13 @@ def count_survey_questions(slice_points):
 
 
 def check_num_questions(num_questions):
+	"""Determines whether or the the amount of questions in a survey is > 1
+
+	Args:
+		num_questions(int): The amount of questions in a survey.
+	Returns:
+		Bool: True is num_questions > 1."""
+		
 	return len(set(num_questions)) <= 1
 
 
@@ -100,7 +159,7 @@ def main(col_to_drop, slice_prompt):
 	df.set_index("enter_par_id", inplace=True)
 
 	indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
-	slice_points = get_slice_points(indexer_list)
+	slice_points = get_slice_points(indexer_list, slice_prompt)
 	num_questions = count_survey_questions(slice_points)
 	questions_equal = check_num_questions(num_questions)
 	if questions_equal:
