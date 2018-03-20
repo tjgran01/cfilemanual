@@ -1,5 +1,6 @@
 *venv
 *MyQualtricsDownload
 *.ids
-*experiment
+*experiment_99_cfiles
 *.DS_Store
+*data_files
