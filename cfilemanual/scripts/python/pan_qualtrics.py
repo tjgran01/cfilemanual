@@ -6,7 +6,6 @@ import csv
 import get_qualtrics
 from inputmanager import InputManager
 
-
 def check_if_download():
 	"""Checks to see if the Qualtrics Download is in the current directory. Runs
 	get_qualtrics.py the directory is not found.
@@ -15,6 +14,7 @@ def check_if_download():
 		None
 	Returns:
 		None"""
+	print(f"{os.getcwd()}/MyQualtricsDownload/")
 	if not os.path.exists(f"{os.getcwd()}/MyQualtricsDownload/"):
 		apiToken = get_qualtrics.get_api_token()
 		surveyId = get_qualtrics.get_survey_id(apiToken)

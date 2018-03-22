@@ -82,3 +82,6 @@ class InputManager(object):
             ans = input("> ")
             if len(ans) > 0 and " " not in ans:
                 return ans
+            print("Hmm. That doesn't appear to be a valid variable name."
+                  "Variable names must be more than 0 characters, and can't"
+                  " contain whitespace.")

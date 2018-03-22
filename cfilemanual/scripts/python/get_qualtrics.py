@@ -118,9 +118,9 @@ def get_api_token():
 
     try:
     # replace address below with .txt file where your API key is stored.
-        with open ("/Users/trevorgrant/api_token/syrqual.txt") as in_file:
+        with open ("/Users/trevorgrant/api_tokens/syrqual.txt") as in_file:
             # [:-1] removes extra whitespace.
-            apiToken = in_file.read()[:-1]
+            apiToken = in_file.read()
             return apiToken
     except FileNotFoundError:
         print("\n ERROR: Unable to locate an API token. \n")
