@@ -29,7 +29,14 @@ def get_survey_information(apiToken, dataCenter="ca1"):
         }
 
     response = requests.get(baseUrl, headers=headers)
-    survey_info = json.loads(response.text)['result']['elements']
+    try:
+        survey_info = json.loads(response.text)['result']['elements']
+    except KeyError:
+        print(json.loads(response.text))
+        print("You are presenting an invalid API token to qualtrics. "
+              "Please make sure that your API token exactly matches"
+              "the token listed on the Qualtrics account and try again.")
+        sys.exit()
 
     print("\nBelow are the surveys listed under your qualtrics account:\n")
     print("-" * 80)
@@ -116,11 +123,13 @@ def get_api_token():
         file is in the wrong place. This function rasies the above and quits the
         program."""
 
+    api_fpath = "/Users/trevorgrant/api_token/syrqual.txt"
+
     try:
     # replace address below with .txt file where your API key is stored.
-        with open ("/Users/trevorgrant/api_tokens/syrqual.txt") as in_file:
+        with open (api_fpath) as in_file:
             # [:-1] removes extra whitespace.
-            apiToken = in_file.read()
+            apiToken = in_file.read()[:-1]
             return apiToken
     except FileNotFoundError:
         print("\n ERROR: Unable to locate an API token. \n")
