@@ -15,11 +15,13 @@ def main(par_id):
         if str(par_id) in file_name and "Probe1_Deoxy" in file_name:
             df = pd.read_csv(f"{target_dir}/{file_name}", header=34)
             mark_list = df["Mark"].tolist()
+            semantic_mark_list = [x for x in mark_list if x > 0]
             onsets = [i for i, x in enumerate(mark_list) if x > 0]
+            print(onsets)
+            print(semantic_mark_list)
             offset_onsets = onsets[1:]
             offset_onsets.append(offset_onsets[-1] + 100)
             durations = [offset_onsets - onsets for offset_onsets, onsets in zip(offset_onsets, onsets)]
-            print(durations)
 
     for file_name in os.listdir(cond_dir):
         if str(par_id) in file_name:
