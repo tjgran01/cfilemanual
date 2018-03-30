@@ -42,3 +42,7 @@ class MarkServer(object):
             return None
         self.conn.sendall(str.encode(data))
         print("Data has been sent to the client.")
+
+
+    def close_connection(self):
+        self.conn.close()
