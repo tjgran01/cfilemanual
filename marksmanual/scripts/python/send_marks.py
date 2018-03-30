@@ -1,13 +1,22 @@
-import os
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
+
+from markserver import MarkServer
+
+mark_server = MarkServer()
+
+# to run in terminal:
+# FLASK_APP=send_marks.py flask run
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/mark", methods=["GET"])
+@app.route("/mark", methods=["GET", "POST"])
 def mark():
-    with open("./this.txt", "w") as out_file:
-       out_file.write('Hello')
-
-    return "Nothing to see here..."
+    data = request.form["mark"]
+    print(data)
+    if data:
+        mark_server.data_transfer(data)
+    else:
+        print("No data")
+    return data

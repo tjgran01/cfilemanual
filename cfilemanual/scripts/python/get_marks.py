@@ -2,6 +2,10 @@ import pandas as pd
 import os
 import csv
 
+## This needs to be made into an interable.
+## This also needs to be refactored in order to include meaningful
+## docstrings.
+
 def main(par_id):
 
     target_dir = f"{os.getcwd()}/data_files/"
@@ -44,14 +48,6 @@ def main(par_id):
 
                 for row in new_file:
                     writer.writerow(row)
-
-
-
-
-            # df = pd.read_csv(f"{cond_dir}/{file_name}")
-            # df.loc["onset"] = onsets[:df.shape[1]]
-
-
 
 if __name__ == "__main__":
     main(par_id=9999)
