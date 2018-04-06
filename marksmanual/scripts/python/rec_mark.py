@@ -1,12 +1,23 @@
 import socket
 import serial
 import sys
+import csv
 
 def get_host_ip():
     try:
         with open("server_ip.txt") as in_file:
             host = in_file.read()
             return host
+    except FileNotFoundError:
+        return None
+
+
+def get_host_ips():
+    try:
+        with open("server_ip.csv", "r") as in_csv:
+            ips = csv.reader(in_csv, delimiter=",")
+            hosts = [ip for ip in ips]
+            return hosts
     except FileNotFoundError:
         return None
 
@@ -25,16 +36,6 @@ def send_to_fnirs(data):
     print(port.isOpen())
 
 
-host = get_host_ip()
-if not host:
-    print("No Server IP found. Closing program.")
-    sys.exit()
-print(host)
-port = 5560
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host, port))
-
 def get_mark():
     while True:
         reply = s.recv(1024)
@@ -43,11 +44,29 @@ def get_mark():
             s.close()
             sys.exit()
         else:
-            print("Do something fancy")
             send_to_fnirs(reply)
 
+
+hosts = get_host_ips()
+if not hosts:
+    print("File 'server_ip.csv' not found. Closing program.")
+    sys.exit()
+port = 5560
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+for host in hosts:
+    print(host)
+    host = str(host)[2:-2]
+    print(host)
+    try:
+        s.connect((host, port))
+        break
+    except:
+        print("could not connect")
+        continue
+
 while True:
-    print("Waiting for reply.. ..")
+    print("Waiting for mark.. ..")
     reply = get_mark()
 
 s.close()
