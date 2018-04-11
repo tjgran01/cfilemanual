@@ -80,22 +80,26 @@ For questions or suggestions on formatting, etc, feel free to contact Trevor Gra
 ##### Created: 3/2018
 ##### Created by: Trevor Grant
 ##### Email Support: tjgran01@syr.edu
-##### Created for: Creates a Flask server to that receives POST requests from AJAX calls embedded in either Qualtrics questions, or web-based stimuli more generally.
+##### Created for: Creates a socket object that listens for one client to connect to. Once connected, the object sends string information to the client.
 
 #### What this script does:
 
-This script creates a web server that can receive POST requests - 
+This script works by creating a socket object that waits until it is connected to before
+transferring any data. Once created, the object will print to the console that a socket
+bind in complete. After binding, the object will continue to listen for a connection on
+port 5560, once that connection is received, the object is able to use the `data_transfer()`
+method to send string data to the client device.
 
 #### *This file takes as input*:
 
-All of these functions take a prompt to display to a user as an argument. Some methods require
-additional arguments in order to function. See the docstrings in the source for details.
+This file does not need any input.
 
 #### *This script gives as output*:
 
-Sanitized user input to avoid the user inputting values which would cause the program to halt.
+A `MarkServer()` object that can be imported into other scripts for sending string information
+from once device to another.
 
 #### Notes, etc:
 
-This script will be updated in the event that scripts in this repository require different
-types of user input.
+This script needs to be updated for better error handling. It current works on both Mac and
+Windows environments, but needs to be tested to see if it will work on Linux (Ubuntu).

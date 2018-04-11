@@ -1,9 +1,25 @@
+##### This script is the script to be run on the Raspberry Pi.
+##### This script will do nothing if run on the machine running the stimulus.
+##### Read the documentation on GitHub if this is at all unclear.
+
 import socket
 import serial
 import sys
 import csv
 
 def get_host_ip():
+    """Opens a file in the current directory called 'server_ip.txt', and reads
+    the file to find the current ip address that this script will try to connect
+    to.
+
+    Args:
+        None
+    Returns:
+        host(str): The ip address of the host computer.
+    Rasies:
+        FileNotFoundError: If there is no files 'server_ip.txt' in the current
+        directory."""
+
     try:
         with open("server_ip.txt") as in_file:
             host = in_file.read()
@@ -13,6 +29,17 @@ def get_host_ip():
 
 
 def get_host_ips():
+    """Iterates through a list of server ips. Returns a list of potential server
+    ip addresses.
+
+    Args:
+        None
+    Returns:
+        hosts(list): List of potential server ip addresses
+    Rasies:
+        FileNotFoundError: If there is no files 'server_ip.txt' in the current
+        directory."""
+
     try:
         with open("server_ip.csv", "r") as in_csv:
             ips = csv.reader(in_csv, delimiter=",")
@@ -23,6 +50,14 @@ def get_host_ips():
 
 
 def send_to_fnirs(data):
+    """Sends a string mark to the fNIRS device through the USB port the the
+    serial port of the fNIRS.
+
+    Args:
+        data(str): The mark sent to the fNIRS device.
+    Reutnrs:
+        None"""
+
     port = serial.Serial("/dev/ttyUSB0",
                          baudrate=9600,
                          parity=serial.PARITY_NONE,
@@ -30,13 +65,19 @@ def send_to_fnirs(data):
                          bytesize=serial.EIGHTBITS,
                          writeTimeout = 0,
                          timeout = 10)
-    print(port.isOpen())
     port.write(data)
     port.close()
-    print(port.isOpen())
 
 
 def get_mark():
+    """Recieves a mark from the machine that is being used as the server
+    and then sends that mark to both the BIOPAC and the fNIRS device.
+
+    Args:
+        None
+    Returns:
+        None"""
+
     while True:
         reply = s.recv(1024)
         print(reply.decode("utf-8"))
