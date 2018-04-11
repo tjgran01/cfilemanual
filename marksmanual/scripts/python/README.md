@@ -7,12 +7,6 @@
 
 # Overview
 
-This README should be used as a reference for all of the scripts located within the `/cfilemanual/markmanual/scripts/python/` directory of this project. Currently, this
-section is a work in progress and will be updated as more general purpose scripts are
-created to help researchers in the MIND lab (as well as other labs utilizing a conditions
-file based approach for analyzing physiological data) get their data from the collection
-phase to the modeling phase (you know, the fun part).
-
 ### To Contribute to this arm of the project.
 
 Research is a collaborative endeavor with a high rate of churn - which can be a great thing -
@@ -103,3 +97,84 @@ from once device to another.
 
 This script needs to be updated for better error handling. It current works on both Mac and
 Windows environments, but needs to be tested to see if it will work on Linux (Ubuntu).
+
+## send_marks.py
+
+##### Created: 3/2018
+##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
+##### Created for: Creates a Flask web server that is able to receive POST requests from incoming JQuery AJAX calls. It then sends the data payload from the POST requests to another machine (Raspberry Pi), to send the marks to all of the sensors.
+
+#### What this script does:
+
+This script works by first spinning up a local Flask web server. The site can be viewed at
+the local ip address on port 5000. The site is used only for the purposes of being able to
+receive HTTP requests from web based stimuli, and to translate those requests into method
+calls that send the payload of the HTTP request to a client device.
+
+To run this script you will want to invoke flask in the command line. In order to do this type:
+
+OSX / Linux:
+
+`FLASK_APP=send_marks.py flask run`
+
+Windows:
+
+`>> set FLASK_APP=send_marks.py`
+`>> flask run`
+
+#### *This file takes as input*:
+
+This file does not need any input.
+
+#### *This script gives as output*:
+
+This file does not give any output.
+
+#### Notes, etc:
+
+This script should be run on the machine that the stimulus is being presented to the
+participant on. Once it begins, you will want to then run `rev_mark.py` on the machine
+that is sending the marks to the devices. Once a connection is established, the stimulus
+machine should send all of the relevant marks to the machine sending the marks to the
+physiological sensors.
+
+## rcv_marks.py
+
+##### Created: 4/2018
+##### Created by: Trevor Grant
+##### Email Support: tjgran01@syr.edu
+##### Created for: Creates a socket object on a client device that connects to host, listens for incoming information (marks), and sends those marks to the relevant physiological sensors.
+
+#### What this script does:
+
+This script works by first attempting to connect to a machine on the same network
+as the device that is presenting the stimulus. It will look for the server's ip address in a
+`.txt` file located in the directory in which this script is run named `server_ip.txt`. After
+finding the server's ip address it will connect to the server device on port 5560.
+
+Once connection is established this script will wait for incoming information from the server.
+Once it is given information this script will send that information out the the relevant
+physiological sensors through various output methodologies.
+
+Currently this script can send information to the HITACHI ETG-4000 though a serial port, as
+well as the BIOPAC MP400 though electrical signals sent though a Raspberry Pi's GPIO pins.
+
+#### *This file takes as input*:
+
+There needs to be a valid ip address to the host machine (the machine running the stimulus)
+contained within the `server_ip.txt` file in the directory in which this script is run. Both
+machines involved in the marking need to be on the same network, and need port 5560 avilable.
+This script will fail if `send_marks.py` is not currently running on the stimulus computer.
+
+#### *This script gives as output*:
+
+This script does not give any output.
+
+#### Notes, etc:
+
+Better error handling needs to be created for this script. `server_ip.txt` should be replaced
+with `server_ips.csv`, and should store multiple ip address from which this script can cycle
+through to try to establish connection. Further things should be done in the BIOPAC function
+as well - perhaps it is worth trying to code marks that would appear as syntactically different
+on the fNIRS device to be coded as different voltages by the BIOPAC marks.
