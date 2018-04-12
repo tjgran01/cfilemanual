@@ -1,0 +1,7 @@
+*venv
+*MyQualtricsDownload
+*.ids
+*experiment_99_cfiles
+*.DS_Store
+*data_files
+*server_ip.txt
