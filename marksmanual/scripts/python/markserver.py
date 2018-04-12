@@ -1,5 +1,8 @@
 import socket
+<<<<<<< HEAD
 import atextit
+=======
+>>>>>>> 0aa16782ea15022fe297f1de644a22bf34f937ab
 
 class MarkServer(object):
     """A MarkServer object is a socket connection that opens port 5560.
@@ -89,5 +92,9 @@ class MarkServer(object):
             self
         Returns:
             None"""
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 0aa16782ea15022fe297f1de644a22bf34f937ab
         self.conn.close()

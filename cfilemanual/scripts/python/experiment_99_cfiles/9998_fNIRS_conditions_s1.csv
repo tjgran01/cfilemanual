@@ -1,0 +1,11 @@
+,Task1,Task2,Task3,Task4,Task5
+onset,,,,,
+duration,,,,,
+stim,4,4,2,8,2
+tlx,1,1,1,1,1
+tlx_mental,6,3,5,8,3
+tlx_physical,13,16,10,15,13
+tlx_temporal,4,7,6,7,17
+tlx_performance,10,11,13,11,12
+tlx_effort,18,4,9,7,6
+tlx_frustration,5,17,12,17,12
