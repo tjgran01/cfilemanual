@@ -2,7 +2,7 @@
 1. [Overview](#overview)
 2. [Scripts](#scripts)
     - [markserver.py](#markserverpy)
-    - [send_mark.py](#sendmarkpy)
+    - [send_marks.py](#sendmarkspy)
     - [rec_mark.py](#recmarkpy)
 
 # Overview
@@ -176,7 +176,7 @@ that is sending the marks to the devices. Once a connection is established, the 
 machine should send all of the relevant marks to the machine sending the marks to the
 physiological sensors.
 
-## rcv_marks.py
+## rcev_marks.py
 
 ##### Created: 4/2018
 ##### Created by: Trevor Grant
