@@ -155,6 +155,8 @@ OSX / Linux:
 
 Windows:
 
+NOTE: As this project currently stands - it does not work in Windows Environments.
+
 `>> set FLASK_APP=send_marks.py`
 `>> flask run`
 
