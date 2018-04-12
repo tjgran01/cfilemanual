@@ -40,6 +40,8 @@ syntactically valid marks.
 
 # Setting Up
 
+## Hardware.
+
 In order to run these scripts properly you are going to need both a stimulus computer with Internet
 connection, as well as a mark machine connected to the same network as the stim computer. Both of these
 machines should have port `5560` open - so that messages may be sent from the stim computer to the mark
@@ -48,7 +50,7 @@ alter the variable `port` in both the `send_marks.py` file stored on the stim ma
 `rcev_marks.py` on the mark machine to reflect a port that is available for these scripts to
 communicate.
 
-## The ETG-4000 fNIRS device:
+### The ETG-4000 fNIRS device:
 
 In order to set up the ETG-4000 for marks you will first need to power on the device. When you do, you
 will be greeted by a screen that looks similar to the image below:
@@ -63,11 +65,17 @@ While in this window chose 'Serial' from the 'Mark In' downdown menu.
 
 4. The settings should match the image below.
 
-5. Click okay, and ensure that the USB connection on the Raspberry Pi is connected to COM port 2 of the
-ETG-4000.
+5. Click OK to close the window, and ensure that the USB connection on the Raspberry Pi is connected to
+COM port 2 of the ETG-4000.
 
-## The MP150 BIOPAC device:
+### The MP150 BIOPAC device:
 
+The Raspberry Pi should already be wired up to recieve marks from the Raspberry Pi, but if you are
+setting it up from scratch:
 
-
-In the top dropdown menu, you will want to set the
+1. You will want to connect a ground pin on the Raspberry Pi's GPIO board to the hole labeled GND on the
+MP150 device.
+2. Connect any (the scripts currently use pin 5) GPIO pin on the Raspberry Pi's board to the 'Digital
+I/O' '0' input on the MP150.
+  - Note: **If you are using a pin other than pin 5 on the GPIO board** `GPIO.setmode(GPIO.BOARD)` **for
+  numbering convention of the pins. Change the variable** `pin` **in the script** `rcev_marks.py`. 
