@@ -5,6 +5,7 @@
       - [The ETG-4000](#the-etg-4000)
       - [The MP-150](#the-mp-150)
     - [Running `send_marks.py`](#running-send_markspy)
+    - [Running `rcev_marks.py`](#running-rcev_markspy)
 
 # Overview
 
