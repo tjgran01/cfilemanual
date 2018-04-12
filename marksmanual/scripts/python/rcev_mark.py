@@ -40,7 +40,8 @@ def get_host_ip():
             host = in_file.read()
             return host
     except FileNotFoundError:
-        return None
+        print("File 'server_ip.txt' not found. Closing program.")
+        sys.exit()
 
 
 def get_host_ips():
@@ -127,14 +128,11 @@ def main():
         None
     Returns:
         None"""
-        
+
     pin = 5
     set_gpio_parm(pin)
     port = 5560
     host = get_host_ip()
-    if not host:
-        print("File 'server_ip.txt' not found. Closing program.")
-        sys.exit()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
