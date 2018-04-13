@@ -78,6 +78,9 @@ class MarkServer(object):
             print("Data provided cannot be converted to a string.")
             return None
         self.conn.sendall(str.encode(data))
+        if data == "KILL":
+            time.sleep(2)
+            self.close_connection()
         print("Data has been sent to the client.")
 
 
@@ -88,5 +91,5 @@ class MarkServer(object):
             self
         Returns:
             None"""
-
+        print("KILL Command issued! Closing program.")
         self.conn.close()

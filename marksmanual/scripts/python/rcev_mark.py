@@ -94,10 +94,10 @@ def send_to_biopac(data):
     Returns:
         None"""
 
-        GPIO.output(3, True)
-        time.sleep(.1)
-        GPIO.output(3, False)
-        print("Sent to BIOPAC")
+    GPIO.output(3, True)
+    time.sleep(.1)
+    GPIO.output(3, False)
+    print("Sent to BIOPAC")
 
 
 def get_mark():
@@ -150,4 +150,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-`
