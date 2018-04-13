@@ -62,7 +62,7 @@ communicate.
 In order to set up the ETG-4000 for marks you will first need to power on the device. When you do, you
 will be greeted by a screen that looks similar to the image below:
 
-![fNIRS_Display](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/IMAG0491.jpg)
+![fNIRS_Display](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/fNIRS_home.jpg)
 
 1. Once in this screen you will want to click on the button marked "Parameter Set" (outlined in red
   above).
@@ -70,14 +70,24 @@ will be greeted by a screen that looks similar to the image below:
 
 2. A new window should pop up, shown below:
 
+![Param_Display](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/param_window.jpg)
+
 While in this window chose 'Serial' from the 'Mark In' drop down menu.
+
+![pick_serial](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/pick_serial.jpg)
 
 3. Next click on the 'External' tab in the 'Parameter' window that is currently opened.
 
+![click_external](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/click_external.jpg)
+
 4. The settings should match the image below.
+
+![com_settings](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/com_settings.jpg)
 
 5. Click OK to close the window, and ensure that the USB connection on the Raspberry Pi is connected to
 COM port 2 of the ETG-4000.
+
+![com_port](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/com_port.jpg)
 
 ### The MP150:
 
