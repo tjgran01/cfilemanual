@@ -40,10 +40,9 @@ def get_host_ip():
             host = in_file.read()
             return host
     except FileNotFoundError:
-        print("File 'server_ip.txt' not found. Closing program.")
-        sys.exit()
+        return None
 
-
+https://outlook.office.com/owa/?realm=syr.edu
 def get_host_ips():
     """Iterates through a list of server ips. Returns a list of potential server
     ip addresses.
@@ -133,6 +132,9 @@ def main():
     set_gpio_parm(pin)
     port = 5560
     host = get_host_ip()
+    if not host:
+        print("File 'server_ip.txt' not found. Closing program.")
+        sys.exit()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
