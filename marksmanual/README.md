@@ -62,8 +62,12 @@ communicate.
 In order to set up the ETG-4000 for marks you will first need to power on the device. When you do, you
 will be greeted by a screen that looks similar to the image below:
 
+![fNIRS_Display](https://github.com/tjgran01/cfilemanual/blob/master/marksmanual/img/IMAG0491.jpg)
+
 1. Once in this screen you will want to click on the button marked "Parameter Set" (outlined in red
   above).
+
+
 2. A new window should pop up, shown below:
 
 While in this window chose 'Serial' from the 'Mark In' drop down menu.

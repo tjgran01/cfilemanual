@@ -42,7 +42,7 @@ def get_host_ip():
     except FileNotFoundError:
         return None
 
-https://outlook.office.com/owa/?realm=syr.edu
+
 def get_host_ips():
     """Iterates through a list of server ips. Returns a list of potential server
     ip addresses.
