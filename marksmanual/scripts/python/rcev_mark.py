@@ -80,6 +80,9 @@ def send_to_fnirs(data):
                          bytesize=serial.EIGHTBITS,
                          writeTimeout = 0,
                          timeout = 10)
+    # Open and close marks on fNIRS.
+    port.write(data)
+    time.sleep(.5)
     port.write(data)
     port.close()
 
@@ -93,6 +96,9 @@ def send_to_biopac(data):
     Returns:
         None"""
 
+    GPIO.output(3, True)
+    time.sleep(.1)
+    GPIO.output(3, False)
     GPIO.output(3, True)
     time.sleep(.1)
     GPIO.output(3, False)
