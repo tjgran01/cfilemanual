@@ -8,6 +8,7 @@ class InputManager(object):
 
     def get_yes_or_no(prompt):
         """Sanatizes user input for yes or no questions.
+
         Args:
             prompt: the question displayed to the user.
         Returns:
@@ -26,9 +27,11 @@ class InputManager(object):
 
     def get_numerical_input(prompt, num_options, extra_option=None):
         """Sanatizes user input when chosing between multiple options.
+
         Args:
-            prompt: the question displayed to the user
-            num_options: the amount of options the user has to chode between.
+            prompt(str): the question displayed to the user
+            num_options(int): the amount of options the user has to choose
+            between.
             extra_options: optional arguement if there is an extra argument
             outside of 'num_options'
         Returns:
@@ -59,7 +62,6 @@ class InputManager(object):
 
         Args:
             prompt: the question displayed to the user.
-
         Returns:
             fpath(str): location of the file.
         """

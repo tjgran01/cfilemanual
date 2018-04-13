@@ -2,9 +2,75 @@ import pandas as pd
 import os
 import getpass
 import csv
+import sys
 
 import get_qualtrics
 from inputmanager import InputManager
+
+
+def get_cleaned_df(col_to_drop):
+
+	file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
+	df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
+	df.drop(col_to_drop, axis=1, inplace=True)
+	df.drop(1, axis=0, inplace=True)
+	return df
+
+
+def get_slice_strings(df):
+
+	first_q = find_first_q(df)
+	if not first_q:
+		print("First question not able to be located, using default.")
+		first_q = "(For Experimenter) Please Enter Participant ID."
+	slice_prompt = find_slice_prompt(df)
+	if not slice_prompt:
+		print("slice_prompt not able to be located, using default.")
+		slice_prompt = ("(For Experimenter) Please select the corresponding"
+		 				" task number referring to the task the particip...")
+
+	return (first_q, slice_prompt)
+
+
+def find_first_q(df):
+	try:
+		first_q = df.iloc[0][0]
+	except:
+		return None
+	ans = InputManager.get_yes_or_no("\033[1m CHECKING FIRST QUESTION:"
+									 f"\n\n'{first_q}'\033[0m\n\n"
+									 "is the above the first survey question "
+									 "in your survey?: (Y/n) \n\n"
+									 "\033[1mNOTE:\033[0m This question should "
+									 "be asking for the experimenter to enter "
+									 "the participant's ID number.")
+	if ans:
+		return first_q
+	else:
+		sys.exit()
+
+
+def find_slice_prompt(df):
+	total_q = len(df.iloc[0])
+	num_prelim_qs = InputManager.get_numerical_input("How many preliminary "
+													 "questions were asked "
+													 "before the experiment "
+													 "began?: ", 9)
+	num_sur_q = total_q - num_prelim_qs
+
+
+	poten_task_amts = [x for x in range(2, 30) if num_sur_q % x == 0]
+	if len(poten_task_amts) > 1:
+		print("Judging by the numbers, it looks like there are multiple ways"
+			  " in which these questions could be broken up. Please answer the"
+			  " questions below to continue to attempt to parse the data.\n")
+		for poten_task_amt in poten_task_amts:
+			ans = InputManager.get_yes_or_no(f"Where there {poten_task_amt} "
+											"total tasks in your study?")
+			if ans:
+				task_amount = poten_task_amt
+				break
+
 
 def check_if_download():
 	"""Checks to see if the Qualtrics Download is in the current directory. Runs
@@ -14,7 +80,6 @@ def check_if_download():
 		None
 	Returns:
 		None"""
-	print(f"{os.getcwd()}/MyQualtricsDownload/")
 	if not os.path.exists(f"{os.getcwd()}/MyQualtricsDownload/"):
 		apiToken = get_qualtrics.get_api_token()
 		surveyId = get_qualtrics.get_survey_id(apiToken)
@@ -48,7 +113,7 @@ def get_q_measures(num_questions):
 			q_measures.append("stim")
 		else:
 			prompt = (f"Please enter the measurement name for"
-						f"question {x + 1} in the survey.")
+						f" question {x + 1} in the survey.")
 			measure = InputManager.get_variable_name(prompt)
 			q_measures.append(measure)
 			if measure in keyword_measures:
@@ -150,53 +215,57 @@ def check_num_questions(num_questions):
 	return len(set(num_questions)) <= 1
 
 
-def main(col_to_drop, slice_prompt):
+def main(col_to_drop):
 	check_if_download()
-	file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
-	df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
-	df.drop(col_to_drop, axis=1, inplace=True)
-	df.drop(1, axis=0, inplace=True)
+	df = get_cleaned_df(col_to_drop)
+	first_q, slice_prompt = get_slice_strings(df)
 
-	par_ids = df["enter_par_id"].tolist()
-	num_participants = df.shape[0] - 2
+	# print(df)
 
-	# sets participant id as index of df.
-	df.set_index("enter_par_id", inplace=True)
-
-	indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
-	slice_points = get_slice_points(indexer_list, slice_prompt)
-	num_questions = count_survey_questions(slice_points)
-	questions_equal = check_num_questions(num_questions)
-	if questions_equal:
-		survey_length = num_questions[0]
-		print(f"The Survey was {survey_length} questions long.")
-		q_measures = get_q_measures(survey_length)
-		print(f"The experiment so far has had {num_participants} participant(s).")
-	else:
-		print("Something must've happened.")
-		sys.exit()
-
-	for index, row in df.iterrows():
-		if index.isnumeric():
-			par_id = index
-
-			list_row = row.tolist()
-			head_cir = list_row.pop(0)
-
-			if len(list_row) % survey_length == 0:
-				task_num = int(len(list_row) / survey_length)
-				csv_data = []
-				for x in range(0, task_num - 1):
-					start_cell = (survey_length * x)
-					end_cell = (start_cell + 8)
-					task_answers = list_row[start_cell:end_cell]
-					task_answers.insert(0, f"Task{x + 1}")
-					csv_data.append(task_answers)
-				make_c_files(par_id, csv_data, q_measures)
-
-			else:
-				print("Inconsistent number of questions. Exiting Program.")
-				sys.exit()
+	# try:
+	# 	par_ids = df["enter_par_id"].tolist()
+	# except KeyError as e:
+	# 	print(f"ERROR: Cannot find Key: {e}")
+	# 	print("Hm, something seems a-foot with your survey questions.")
+	# 	print("Gonna have to do this one manually.")
+	# 	sys.exit()
+	#
+	# num_participants = df.shape[0] - 2
+	# # sets participant id as index of df.
+	# df.set_index("enter_par_id", inplace=True)
+	#
+	# indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
+	# slice_points = get_slice_points(indexer_list, slice_prompt)
+	# num_questions = count_survey_questions(slice_points)
+	# questions_equal = check_num_questions(num_questions)
+	# if questions_equal:
+	# 	survey_length = num_questions[0]
+	# 	print(f"The Survey was {survey_length} questions long.")
+	# 	q_measures = get_q_measures(survey_length)
+	# 	print(f"The experiment so far has had {num_participants} participant(s).")
+	# else:
+	# 	print("Something must've happened.")
+	# 	sys.exit()
+	#
+	# for index, row in df.iterrows():
+	# 	if index.isnumeric():
+	# 		par_id = index
+	#
+	# 		list_row = row.tolist()
+	# 		head_cir = list_row.pop(0)
+	#
+	# 		if len(list_row) % survey_length != 0:
+	# 			print("Inconsistent number of questions. Exiting Program.")
+	# 			sys.exit()
+	# 		task_num = int(len(list_row) / survey_length)
+	# 		csv_data = []
+	# 		for x in range(0, task_num - 1):
+	# 			start_cell = (survey_length * x)
+	# 			end_cell = (start_cell + 8)
+	# 			task_answers = list_row[start_cell:end_cell]
+	# 			task_answers.insert(0, f"Task{x + 1}")
+	# 			csv_data.append(task_answers)
+	# 		make_c_files(par_id, csv_data, q_measures)
 
 
 if __name__ == "__main__":
@@ -206,5 +275,4 @@ if __name__ == "__main__":
 				   "RecipientEmail", "ExternalDataReference", "Finished",
 				   "Status", "LocationLatitude", "LocationLongitude",
 				   "LocationAccuracy"]
-	slice_prompt = "(For Experimenter) Please select the corresponding task number referring to the task the particip..."
-	main(col_to_drop, slice_prompt)
+	main(col_to_drop)

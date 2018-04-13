@@ -13,7 +13,7 @@ Marks are messages that are sent to physiological data files to help researchers
 when during data collection. For example, if you are running an fNIRS study and your participant is
 subjected to two different conditions, one of high stress and one of low stress, it is important that
 the physiological data has some reflection of the the time in which the participant was subjected to
-each of those different types of stimuli. This is what is refered to as a 'mark' in the data.
+each of those different types of stimuli. This is what is referred to as a 'mark' in the data.
 
 These scripts can be run on both the computer that the participant is working off of (refereed to as
 the stim computer), and a connected Raspberry Pi that is on the same network (the mark machine or
