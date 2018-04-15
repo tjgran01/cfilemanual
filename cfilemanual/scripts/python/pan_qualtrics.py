@@ -8,7 +8,31 @@ import get_qualtrics
 from inputmanager import InputManager
 
 
+def clean_getaway(error=None):
+	"""Displays a prompt to the user and then exits the program.
+	Args:
+		None
+	Returns:
+		None"""
+
+	if e:
+		print(e)
+	print("Something has gone wrong - either your survey questions are not"
+		  " evenly spaced throughout your study, or some other error has "
+		  " taken place that will make parsing automatically difficult."
+		  " The program is now closing.")
+	sys.exit()
+
+
 def get_cleaned_df(col_to_drop):
+	"""Strips the qualtrics survey off all the columns and rows not needed
+	to generate conditions files.
+
+	Args:
+		col_to_drop(list): List of string column heading that can be removed
+		from the df.
+	Returns:
+		df: df with the unneeded columns dropped."""
 
 	file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
 	df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
@@ -18,6 +42,15 @@ def get_cleaned_df(col_to_drop):
 
 
 def get_slice_strings(df):
+	"""Tries to locate the strings (question text) that the program needs in
+	order to properly parse the qualtrics survey data.
+
+	Args:
+		df: a DataFrame of the qualtrics data export.
+	Returns:
+		first_q(str): The first question in the survey.
+		slice_prompt: The first question in the repeated survey that the
+		participant is given after completing an experimental task."""
 
 	first_q = find_first_q(df)
 	if not first_q:
@@ -33,6 +66,13 @@ def get_slice_strings(df):
 
 
 def find_first_q(df):
+	"""Asks the user if the first question left over in the cleaned df is the
+	first question of their survey. It also informs that user that the first
+	question should be in the question asking for the participant's ID.
+
+	Args:
+		df: a (cleaned) DataFrame of the qualtrics data export.
+	Returns: None"""
 
 	try:
 		first_q = df.iloc[0][0]
@@ -48,22 +88,62 @@ def find_first_q(df):
 	if ans:
 		return first_q
 	else:
-		print("Something has gone wrong - either your survey questions are not"
-			  " evenly spaced throughout your study, or some other error has "
-			  " taken place that will make parsing it automatically difficult."
-			  " The program is now closing.")
-		sys.exit()
+		clean_getaway()
 
 
 def get_slice_prompt_index(df):
+	"""Calls a series of functions that ask for user input in order to determine
+	what question is the first in the series of questions given to a participant
+	after each task is completed.
+
+	Args:
+		df: A cleaned DataFrame of the Qualtrics export.
+	Returns:
+		num_of_tasks(int): The number of surveys the participant completed.
+		task_amount(int): The number of questions in each survey.
+		num_prelim_qs(int): The number of questions before the experiment began.
+	"""
 
 	total_q = len(df.iloc[0])
+	num_prelim_qs = get_prelim_qs(df)
+	num_sur_q = total_q - num_prelim_qs
+	task_amount = ask_user_task_amount(df, num_sur_q)
+	num_of_tasks = num_sur_q / task_amount
+	if num_of_tasks.is_integer():
+		int(num_of_tasks)
+		return (num_of_tasks, task_amount, num_prelim_qs)
+	clean_getaway()
+
+
+
+def	get_prelim_qs(df):
+	"""Asks the user to input the amount of questions in the survey that do not
+	correspond to survey questions given to the participant (preliminary
+	questions).
+
+	Args:
+		df: A cleaned DataFrame of the Qualtrics export.
+	Returns:
+		num_prelim_qs(int): The number of questions before the experiment began.
+	"""
+
 	num_prelim_qs = InputManager.get_numerical_input("How many preliminary "
 													 "questions were asked "
 													 "before the experiment "
 													 "began?: ", 9)
-	num_sur_q = total_q - num_prelim_qs
 
+	return num_prelim_qs
+
+def ask_user_task_amount(df, num_sur_q):
+	"""Asks for user input to determine how many surveys were given to the
+	participant in the study.
+
+	Args:
+		df: A cleaned DataFrame of the Qualtrics export.
+		num_sur_q(int): Total number of questions asked in surveys.
+	Returns:
+		task_amount(int): The number of questions in each survey.
+	"""
 
 	poten_task_amts = [x for x in range(2, 30) if num_sur_q % x == 0]
 	if len(poten_task_amts) > 1:
@@ -75,26 +155,27 @@ def get_slice_prompt_index(df):
 											"total tasks in your study?")
 			if ans:
 				task_amount = poten_task_amt
-				return (num_sur_q / task_amount, task_amount, num_prelim_qs)
+				return task_amount
 				break
 	elif len(poten_task_amts) == 1:
 		ans = InputManager.get_yes_or_no(f"There were {poten_task_amts} in your"
 										  " study? (Y/n): ")
 		if not ans:
-			print("Alright, you will have to parse this manually."
-				  " Closing the program.. .. ")
-			sys.exit()
+			clean_getaway()
+		return task_amount
 	else:
-		print("Something has gone wrong - either your survey questions are not"
-			  " evenly spaced throughout your study, or some other error has "
-			  " taken place that will make parsing automatically difficult."
-			  " The program is now closing.")
-		sys.exit()
-
-
+		clean_getaway()
 
 
 def find_slice_prompt(df):
+	"""Finds the string value that the script will use to slice the survey data
+	up by - the first question asked in the beginning of each survey.
+
+	Args:
+		df: A cleaned DataFrame from the Qualtrics export.
+	Returns:
+		slice_prompt(str): The string value of the first survey question in each
+		survey."""
 
 	questions_list = df.iloc[0].tolist()
 	num_of_q_per_task, num_of_tasks, num_prelim_qs  = get_slice_prompt_index(df)
@@ -110,11 +191,7 @@ def find_slice_prompt(df):
 									 "be asking for the experimenter to enter "
 									 "the task the participant just completed.")
 	if not ans:
-		print("Something has gone wrong - either your survey questions are not"
-			  " evenly spaced throughout your study, or some other error has "
-			  " taken place that will make parsing automatically difficult."
-			  " The program is now closing.")
-		sys.exit()
+		clean_getaway()
 	return slice_prompt
 
 
