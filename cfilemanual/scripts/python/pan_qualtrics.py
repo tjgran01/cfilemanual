@@ -33,6 +33,7 @@ def get_slice_strings(df):
 
 
 def find_first_q(df):
+
 	try:
 		first_q = df.iloc[0][0]
 	except:
@@ -47,10 +48,15 @@ def find_first_q(df):
 	if ans:
 		return first_q
 	else:
+		print("Something has gone wrong - either your survey questions are not"
+			  " evenly spaced throughout your study, or some other error has "
+			  " taken place that will make parsing it automatically difficult."
+			  " The program is now closing.")
 		sys.exit()
 
 
-def find_slice_prompt(df):
+def get_slice_prompt_index(df):
+
 	total_q = len(df.iloc[0])
 	num_prelim_qs = InputManager.get_numerical_input("How many preliminary "
 													 "questions were asked "
@@ -61,15 +67,56 @@ def find_slice_prompt(df):
 
 	poten_task_amts = [x for x in range(2, 30) if num_sur_q % x == 0]
 	if len(poten_task_amts) > 1:
-		print("Judging by the numbers, it looks like there are multiple ways"
+		print(f"Judging by the numbers, it looks like there are multiple ways"
 			  " in which these questions could be broken up. Please answer the"
-			  " questions below to continue to attempt to parse the data.\n")
+			  " question(s) below to continue to attempt to parse the data.\n")
 		for poten_task_amt in poten_task_amts:
 			ans = InputManager.get_yes_or_no(f"Where there {poten_task_amt} "
 											"total tasks in your study?")
 			if ans:
 				task_amount = poten_task_amt
+				return (num_sur_q / task_amount, task_amount, num_prelim_qs)
 				break
+	elif len(poten_task_amts) == 1:
+		ans = InputManager.get_yes_or_no(f"There were {poten_task_amts} in your"
+										  " study? (Y/n): ")
+		if not ans:
+			print("Alright, you will have to parse this manually."
+				  " Closing the program.. .. ")
+			sys.exit()
+	else:
+		print("Something has gone wrong - either your survey questions are not"
+			  " evenly spaced throughout your study, or some other error has "
+			  " taken place that will make parsing automatically difficult."
+			  " The program is now closing.")
+		sys.exit()
+
+
+
+
+def find_slice_prompt(df):
+
+	questions_list = df.iloc[0].tolist()
+	num_of_q_per_task, num_of_tasks, num_prelim_qs  = get_slice_prompt_index(df)
+	print(f"There were {int(num_of_q_per_task)} questions per task.")
+	print(f"There were {num_of_tasks} tasks total")
+	print(f"The first {num_prelim_qs} were preliminary questions.")
+	slice_prompt = questions_list[num_prelim_qs]
+	ans = InputManager.get_yes_or_no("\033[1m CHECKING FIRST SURVEY QUESTION:"
+									 f"\n\n'{slice_prompt}'\033[0m\n\n"
+									 "is the above the first survey question "
+									 "in your survey?: (Y/n) \n\n"
+									 "\033[1mNOTE:\033[0m This question should "
+									 "be asking for the experimenter to enter "
+									 "the task the participant just completed.")
+	if not ans:
+		print("Something has gone wrong - either your survey questions are not"
+			  " evenly spaced throughout your study, or some other error has "
+			  " taken place that will make parsing automatically difficult."
+			  " The program is now closing.")
+		sys.exit()
+	return slice_prompt
+
 
 
 def check_if_download():
@@ -149,7 +196,8 @@ def make_c_files(par_id, csv_data, q_measures,
 	if not os.path.exists(f"./experiment_{exper_id}_cfiles/"):
 		os.mkdir(f"./experiment_{exper_id}_cfiles/")
 
-	file_name = f"./experiment_{exper_id}_cfiles/{par_id}_{sensor_type}_conditions_s{session_num}.csv"
+	file_name = (f"./experiment_{exper_id}_cfiles/{par_id}"
+				  "_{sensor_type}_conditions_s{session_num}.csv")
 
 	with open(file_name, "w") as out_csv:
 		writer = csv.writer(out_csv, delimiter=",")
@@ -220,52 +268,50 @@ def main(col_to_drop):
 	df = get_cleaned_df(col_to_drop)
 	first_q, slice_prompt = get_slice_strings(df)
 
-	# print(df)
+	try:
+		par_ids = df["enter_par_id"].tolist()
+	except KeyError as e:
+		print(f"ERROR: Cannot find Key: {e}")
+		print("Hm, something seems a-foot with your survey questions.")
+		print("Gonna have to do this one manually.")
+		sys.exit()
 
-	# try:
-	# 	par_ids = df["enter_par_id"].tolist()
-	# except KeyError as e:
-	# 	print(f"ERROR: Cannot find Key: {e}")
-	# 	print("Hm, something seems a-foot with your survey questions.")
-	# 	print("Gonna have to do this one manually.")
-	# 	sys.exit()
-	#
-	# num_participants = df.shape[0] - 2
-	# # sets participant id as index of df.
-	# df.set_index("enter_par_id", inplace=True)
-	#
-	# indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
-	# slice_points = get_slice_points(indexer_list, slice_prompt)
-	# num_questions = count_survey_questions(slice_points)
-	# questions_equal = check_num_questions(num_questions)
-	# if questions_equal:
-	# 	survey_length = num_questions[0]
-	# 	print(f"The Survey was {survey_length} questions long.")
-	# 	q_measures = get_q_measures(survey_length)
-	# 	print(f"The experiment so far has had {num_participants} participant(s).")
-	# else:
-	# 	print("Something must've happened.")
-	# 	sys.exit()
-	#
-	# for index, row in df.iterrows():
-	# 	if index.isnumeric():
-	# 		par_id = index
-	#
-	# 		list_row = row.tolist()
-	# 		head_cir = list_row.pop(0)
-	#
-	# 		if len(list_row) % survey_length != 0:
-	# 			print("Inconsistent number of questions. Exiting Program.")
-	# 			sys.exit()
-	# 		task_num = int(len(list_row) / survey_length)
-	# 		csv_data = []
-	# 		for x in range(0, task_num - 1):
-	# 			start_cell = (survey_length * x)
-	# 			end_cell = (start_cell + 8)
-	# 			task_answers = list_row[start_cell:end_cell]
-	# 			task_answers.insert(0, f"Task{x + 1}")
-	# 			csv_data.append(task_answers)
-	# 		make_c_files(par_id, csv_data, q_measures)
+	num_participants = df.shape[0] - 2
+	# sets participant id as index of df.
+	df.set_index("enter_par_id", inplace=True)
+
+	indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
+	slice_points = get_slice_points(indexer_list, slice_prompt)
+	num_questions = count_survey_questions(slice_points)
+	questions_equal = check_num_questions(num_questions)
+	if questions_equal:
+		survey_length = num_questions[0]
+		print(f"The Survey was {survey_length} questions long.")
+		q_measures = get_q_measures(survey_length)
+		print(f"The experiment so far has had {num_participants} participant(s).")
+	else:
+		print("Something must've happened.")
+		sys.exit()
+
+	for index, row in df.iterrows():
+		if index.isnumeric():
+			par_id = index
+
+			list_row = row.tolist()
+			head_cir = list_row.pop(0)
+
+			if len(list_row) % survey_length != 0:
+				print("Inconsistent number of questions. Exiting Program.")
+				sys.exit()
+			task_num = int(len(list_row) / survey_length)
+			csv_data = []
+			for x in range(0, task_num - 1):
+				start_cell = (survey_length * x)
+				end_cell = (start_cell + 8)
+				task_answers = list_row[start_cell:end_cell]
+				task_answers.insert(0, f"Task{x + 1}")
+				csv_data.append(task_answers)
+			make_c_files(par_id, csv_data, q_measures)
 
 
 if __name__ == "__main__":
