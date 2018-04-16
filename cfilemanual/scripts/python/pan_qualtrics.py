@@ -22,23 +22,29 @@ def clean_getaway():
 	sys.exit()
 
 
-def get_cleaned_df(col_to_drop):
-	"""Strips the qualtrics survey off all the columns and rows not needed
-	to generate conditions files.
+def get_cleaned_df(col_to_drop, marking=False):
+    """Strips the qualtrics survey off all the columns and rows not needed
+    to generate conditions files.
 
-	Args:
-		col_to_drop(list): List of string column heading that can be removed
-		from the df.
-	Returns:
-		df: df with the unneeded columns dropped."""
+    Args:
+    	col_to_drop(list): List of string column heading that can be removed
+    	from the df.
+    Returns:
+    	df: df with the unneeded columns dropped."""
 
-	file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
-	df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
-	df.drop(col_to_drop, axis=1, inplace=True)
-	headcol = df.iloc[0]
-	df.columns = headcol
-	df.drop(1, axis=0, inplace=True)
-	return df
+    file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
+    df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
+    #cleaning
+    df.drop(col_to_drop, axis=1, inplace=True)
+    headcol = df.iloc[0]
+    df.columns = headcol
+    df.drop(1, axis=0, inplace=True)
+    if marking:
+        # Strip off pre-lims:
+        num_prelim_qs = get_prelim_qs(df)
+        cols_to_remove = headcol[:num_prelim_qs]
+        df.drop(cols_to_remove, axis=1, inplace=True)
+    return df
 
 
 def get_slice_strings(df):
@@ -267,6 +273,8 @@ def get_q_measures(num_questions):
 			q_measures.append(measure)
 			if measure in keyword_measures:
 				return keyword_measures[measure]
+			elif measure == "default":
+				return [f"measure {x}" for x in range(0, num_questions + 1)]
 
 	return q_measures
 
@@ -299,7 +307,7 @@ def make_c_files(par_id, csv_data, q_measures,
 		os.mkdir(f"./experiment_{exper_id}_cfiles/")
 
 	file_name = (f"./experiment_{exper_id}_cfiles/{par_id}"
-				  "_{sensor_type}_conditions_s{session_num}.csv")
+				 f"_{sensor_type}_conditions_s{session_num}.csv")
 
 	with open(file_name, "w") as out_csv:
 		writer = csv.writer(out_csv, delimiter=",")
@@ -365,6 +373,12 @@ def check_num_questions(num_questions):
 	return len(set(num_questions)) <= 1
 
 
+def manual_entry():
+	num_to_jump = input("How many questions per survey?: ")
+
+	return num_to_jump
+
+
 def main(col_to_drop):
 	check_if_download()
 	df = get_cleaned_df(col_to_drop)
@@ -373,13 +387,11 @@ def main(col_to_drop):
 
 	try:
 		par_ids = df[first_q].tolist()
+		num_participants = len(par_ids)
 	except KeyError as e:
 		print(f"ERROR: Cannot find Key: {e}")
-		print("Hm, something seems a-foot with your survey questions.")
-		print("Gonna have to do this one manually.")
 		sys.exit()
 
-	num_participants = df.shape[0] - 1
 	# sets participant id as index of df.
 	df.set_index(first_q, inplace=True)
 	indexer_list = df.loc[first_q].tolist()
@@ -387,22 +399,25 @@ def main(col_to_drop):
 	num_questions = count_survey_questions(slice_points)
 	questions_equal = check_num_questions(num_questions)
 	if questions_equal:
-		survey_length = num_questions[0]
+		try:
+			survey_length = num_questions[0]
+		except:
+			print("Hm... ... Seems like the prompts aren't "
+			      "consistently named. How many survey questions were in "
+				  "each survey given to the participant?")
+			num_questions = input("> ")
 		q_measures = get_q_measures(survey_length)
 	else:
-		print("Something must've happened.")
-		sys.exit()
+		clean_getaway()
 
 	for index, row in df.iterrows():
 		if index.isnumeric():
 			par_id = index
-
 			list_row = row.tolist()
 			head_cir = list_row.pop(0)
 
 			if len(list_row) % survey_length != 0:
-				print("Inconsistent number of questions. Exiting Program.")
-				sys.exit()
+				clean_getaway()
 			task_num = int(len(list_row) / survey_length)
 			csv_data = []
 			for x in range(0, task_num - 1):
