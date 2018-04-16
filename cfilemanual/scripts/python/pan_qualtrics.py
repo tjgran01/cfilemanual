@@ -415,12 +415,13 @@ def main(col_to_drop):
 			par_id = index
 			list_row = row.tolist()
 			head_cir = list_row.pop(0)
+			list_row.pop(0) # remove first mark
 
 			if len(list_row) % survey_length != 0:
 				clean_getaway()
 			task_num = int(len(list_row) / survey_length)
 			csv_data = []
-			for x in range(0, task_num - 1):
+			for x in range(0, task_num):
 				start_cell = (survey_length * x)
 				end_cell = (start_cell + 8)
 				task_answers = list_row[start_cell:end_cell]
