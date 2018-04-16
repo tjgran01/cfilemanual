@@ -8,15 +8,13 @@ import get_qualtrics
 from inputmanager import InputManager
 
 
-def clean_getaway(error=None):
+def clean_getaway():
 	"""Displays a prompt to the user and then exits the program.
 	Args:
 		None
 	Returns:
 		None"""
 
-	if e:
-		print(e)
 	print("Something has gone wrong - either your survey questions are not"
 		  " evenly spaced throughout your study, or some other error has "
 		  " taken place that will make parsing automatically difficult."
@@ -37,6 +35,8 @@ def get_cleaned_df(col_to_drop):
 	file_name = str(os.listdir(f"{os.getcwd()}/MyQualtricsDownload/"))[2:-2]
 	df = pd.read_csv(f"{os.getcwd()}/MyQualtricsDownload/{file_name}")
 	df.drop(col_to_drop, axis=1, inplace=True)
+	headcol = df.iloc[0]
+	df.columns = headcol
 	df.drop(1, axis=0, inplace=True)
 	return df
 
@@ -162,6 +162,7 @@ def ask_user_task_amount(df, num_sur_q):
 										  " study? (Y/n): ")
 		if not ans:
 			clean_getaway()
+		task_amount = poten_task_amts[0]
 		return task_amount
 	else:
 		clean_getaway()
@@ -208,6 +209,30 @@ def check_if_download():
 		apiToken = get_qualtrics.get_api_token()
 		surveyId = get_qualtrics.get_survey_id(apiToken)
 		get_qualtrics.main(surveyId, apiToken)
+
+
+def leave_any_out(df):
+	"""Asks the user if there is any section of the survey they would like
+	to leave out of the parsing process.
+
+	Args:
+		df: A cleaned Qualtrics survey export.
+	Returns:
+		df: A cleaned Qualtrics export with the proper columns removed."""
+
+	ans = InputManager.get_yes_or_no("Are there any columns you not like to"
+									 " include in the conditions files? (Y/n):")
+	if ans:
+		first_prompt = input("Please enter the first prompt for the section "
+							 "you wish to remove: ")
+		how_many_after = int(input("How many columns do you wish to remove "
+									  " after the first prompt?: "))
+
+		headings_list = df.iloc[0].tolist()
+		first_indx = headings_list.index(first_prompt)
+		cols_to_remove = headings_list[first_indx:first_indx + how_many_after]
+		df.drop(cols_to_remove, axis=1, inplace=True)
+	return df
 
 
 def get_q_measures(num_questions):
@@ -343,29 +368,27 @@ def check_num_questions(num_questions):
 def main(col_to_drop):
 	check_if_download()
 	df = get_cleaned_df(col_to_drop)
+	df = leave_any_out(df)
 	first_q, slice_prompt = get_slice_strings(df)
 
 	try:
-		par_ids = df["enter_par_id"].tolist()
+		par_ids = df[first_q].tolist()
 	except KeyError as e:
 		print(f"ERROR: Cannot find Key: {e}")
 		print("Hm, something seems a-foot with your survey questions.")
 		print("Gonna have to do this one manually.")
 		sys.exit()
 
-	num_participants = df.shape[0] - 2
+	num_participants = df.shape[0] - 1
 	# sets participant id as index of df.
-	df.set_index("enter_par_id", inplace=True)
-
-	indexer_list = df.loc["(For Experimenter) Please Enter Participant ID."].tolist()
+	df.set_index(first_q, inplace=True)
+	indexer_list = df.loc[first_q].tolist()
 	slice_points = get_slice_points(indexer_list, slice_prompt)
 	num_questions = count_survey_questions(slice_points)
 	questions_equal = check_num_questions(num_questions)
 	if questions_equal:
 		survey_length = num_questions[0]
-		print(f"The Survey was {survey_length} questions long.")
 		q_measures = get_q_measures(survey_length)
-		print(f"The experiment so far has had {num_participants} participant(s).")
 	else:
 		print("Something must've happened.")
 		sys.exit()
