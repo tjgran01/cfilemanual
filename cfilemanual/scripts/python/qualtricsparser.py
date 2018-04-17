@@ -2,6 +2,7 @@ import pandas as pd
 import os
 
 from inputmanager import InputManager
+from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
     def __init__(self, file_path=None, clean_it=True):
@@ -72,16 +73,63 @@ class QualtricsParser(object):
         return True
 
 
+    def make_headings_col(self):
+
+        headings_col = []
+        headings_col.append(survey_dict["phys_info"])
+        if survey_strings["tlx"] in self.question_headings:
+            headings_col.append(survey_dict["tlx"])
+        if survey_strings["mrq"] in self.question_headings:
+            headings_col.append(survey_dict["mrq"])
+
+        headings_col = [elm for list in headings_col for elm in list]
+        self.headings_col = pd.Series(headings_col)
+
+
+    def parse_marked_data(self):
+
+        for index, row in self.df.iterrows():
+            par_id = row[0]
+            if par_id.isnumeric():
+                head_cir = row[0]
+                data = list(row[self.total_prelim_qs:])
+                data = [data[x:x+self.single_survey_length] for x in
+                        range(0, len(data), self.single_survey_length)]
+
+                cond_df = pd.DataFrame(self.headings_col)
+                for i, survey in enumerate(data):
+                    for x in range(0, 3):
+                        survey.insert(0, "")
+                    data_series = pd.Series(survey)
+                    cond_df[f"Task {i + 1}"] = data_series
+                cond_df.drop(0, axis=0, inplace=True)
+                self.write_to_csv(par_id, cond_df)
+
+
 
     def parse_at_marks(self):
-        self.question_headings = set(self.questions[self.total_prelim_qs:])
+        if self.even_survey_length:
+            self.question_headings = self.questions[self.total_prelim_qs:
+                                                    self.total_prelim_qs +
+                                                    self.single_survey_length]
+        else:
+            self.question_headings = set(self.questions[self.total_prelim_qs:])
+
+        self.make_headings_col()
 
 
-class HeadingLoader(object):
-    def __init__(self):
-        self.headings = {"tlx": ["", "onset", "duration", "stim", "tlx",
-    								"tlx_mental", "tlx_physical",
-    								"tlx_temporal", "tlx_performance",
-    								"tlx_effort", "tlx_frustration"],
-						"mrq": ["", "onset", "duration", "stim", "mrq"],
-						}
+    def write_to_csv(self, par_id, cond_df, sensor_type="fNIRS", session="1"):
+
+        if not os.path.exists(f"./{par_id[:-2]}00's_conditions/"):
+            os.mkdir(f"./{par_id[:-2]}00's_conditions/")
+
+        cond_df.to_csv((f"./{par_id[:-2]}00's_conditions/{par_id}_{sensor_type}_"
+                        f"conditions_s{session}.csv"), index=False)
+
+
+
+
+class ConditionsFileCreator(object):
+    def __init__(self, headings_col, task_number):
+        self.headings_col = headings_col
+        self.task_number = task_number
