@@ -373,39 +373,26 @@ def check_num_questions(num_questions):
 	return len(set(num_questions)) <= 1
 
 
-def manual_entry():
-	num_to_jump = input("How many questions per survey?: ")
-
-	return num_to_jump
-
-
 def main(col_to_drop):
+
 	check_if_download()
 	df = get_cleaned_df(col_to_drop)
 	df = leave_any_out(df)
 	first_q, slice_prompt = get_slice_strings(df)
 
-	try:
-		par_ids = df[first_q].tolist()
-		num_participants = len(par_ids)
-	except KeyError as e:
-		print(f"ERROR: Cannot find Key: {e}")
-		sys.exit()
+	par_ids = df[first_q].tolist()
+	num_participants = len(par_ids)
 
 	# sets participant id as index of df.
 	df.set_index(first_q, inplace=True)
+
 	indexer_list = df.loc[first_q].tolist()
 	slice_points = get_slice_points(indexer_list, slice_prompt)
 	num_questions = count_survey_questions(slice_points)
 	questions_equal = check_num_questions(num_questions)
+
 	if questions_equal:
-		try:
-			survey_length = num_questions[0]
-		except:
-			print("Hm... ... Seems like the prompts aren't "
-			      "consistently named. How many survey questions were in "
-				  "each survey given to the participant?")
-			num_questions = input("> ")
+		survey_length = num_questions[0]
 		q_measures = get_q_measures(survey_length)
 	else:
 		clean_getaway()
