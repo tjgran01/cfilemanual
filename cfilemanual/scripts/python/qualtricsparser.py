@@ -5,22 +5,22 @@ from inputmanager import InputManager
 from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
-    def __init__(self, file_path=None, clean_it=True):
-        if not file_path:
-            file_path = InputManager.get_valid_fpath("Please enter a filepath "
+    def __init__(self, cond_file=None, clean_it=True):
+        if not cond_file:
+            cond_file = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
                                                      "you wish to parse: ")
-        self.load_in_file(file_path)
+        self.load_in_file(cond_file)
         if clean_it:
             self.clean_qualtrics_export()
             self.set_headers()
             self.find_marks()
 
 
-    def load_in_file(self, file_path):
-        self.df = pd.read_csv(file_path)
-        last_slash = file_path.rfind("/")
-        self.file_name = file_path[last_slash + 1:]
+    def load_in_file(self, cond_file):
+        self.df = pd.read_csv(cond_file)
+        last_slash = cond_file.rfind("/")
+        self.file_name = cond_file[last_slash + 1:]
         print(f"File: '{self.file_name}' sucessfully loaded.")
 
 
@@ -86,7 +86,7 @@ class QualtricsParser(object):
         self.headings_col = pd.Series(headings_col)
 
 
-    def parse_marked_data(self):
+    def qualtrics_to_conditions(self):
 
         for index, row in self.df.iterrows():
             par_id = row[0]
@@ -105,19 +105,6 @@ class QualtricsParser(object):
                 cond_df.drop(0, axis=0, inplace=True)
                 self.write_to_csv(par_id, cond_df)
 
-
-
-    def parse_at_marks(self):
-        if self.even_survey_length:
-            self.question_headings = self.questions[self.total_prelim_qs:
-                                                    self.total_prelim_qs +
-                                                    self.single_survey_length]
-        else:
-            self.question_headings = set(self.questions[self.total_prelim_qs:])
-
-        self.make_headings_col()
-
-
     def write_to_csv(self, par_id, cond_df, sensor_type="fNIRS", session="1"):
 
         if not os.path.exists(f"./{par_id[:-2]}00's_conditions/"):
@@ -127,9 +114,25 @@ class QualtricsParser(object):
                         f"conditions_s{session}.csv"), index=False)
 
 
+    def parse_at_marks(self):
+        if self.even_survey_length:
+            self.question_headings = self.questions[self.total_prelim_qs:
+                                                    self.total_prelim_qs +
+                                                    self.single_survey_length]
+        else:
+            print("\033[1mWARNING\033[0m: Number of survey questions found in"
+                  " this export are not even across tasks. This may lead to "
+                  " errors when attempting to parse the file.")
+            self.question_headings = set(self.questions[self.total_prelim_qs:])
+
+        self.make_headings_col()
 
 
-class ConditionsFileCreator(object):
-    def __init__(self, headings_col, task_number):
-        self.headings_col = headings_col
-        self.task_number = task_number
+    def print_info(self):
+        print(f"File being parsed: {self.file_name}")
+        print(f"Ids in experiment:\n {self.id_col}")
+        print(f"Total Survey Length: {self.total_survey_length}")
+        print(f"Number of preliminary questions: {self.total_prelim_qs}")
+        print(f"Number of questions per survey: {self.single_survey_length}")
+        print(f"Number of tasks: {self.total_tasks}")
+        print(f"All question headings: {self.question_headings}")
