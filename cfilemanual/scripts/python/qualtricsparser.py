@@ -14,8 +14,8 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True):
-        if not qual_export=:
-            qual_export= = InputManager.get_valid_fpath("Please enter a filepath "
+        if not qual_export:
+            qual_export = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
                                                      "you wish to parse: ")
         self.load_in_file(qual_export)
@@ -194,7 +194,7 @@ class QualtricsParser(object):
             if par_id.isnumeric():
                 head_cir = row[0]
                 data = list(row[self.total_prelim_qs:])
-                data = [data[x:x+self.single_survey_\033[1mlength] for x in
+                data = [data[x:x+self.single_survey_length] for x in
                         range(0, len(data), self.single_survey_length)]
 
                 cond_df = pd.DataFrame(self.headings_col)
