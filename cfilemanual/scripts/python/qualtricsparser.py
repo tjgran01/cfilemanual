@@ -5,22 +5,22 @@ from inputmanager import InputManager
 from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
-    def __init__(self, cond_file=None, clean_it=True):
-        if not cond_file:
-            cond_file = InputManager.get_valid_fpath("Please enter a filepath "
+    def __init__(self, qual_export==None, clean_it=True):
+        if not qual_export=:
+            qual_export= = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
                                                      "you wish to parse: ")
-        self.load_in_file(cond_file)
+        self.load_in_file(qual_export=)
         if clean_it:
             self.clean_qualtrics_export()
             self.set_headers()
             self.find_marks()
 
 
-    def load_in_file(self, cond_file):
-        self.df = pd.read_csv(cond_file)
-        last_slash = cond_file.rfind("/")
-        self.file_name = cond_file[last_slash + 1:]
+    def load_in_file(self, qual_export=):
+        self.df = pd.read_csv(qual_export=)
+        last_slash = qual_export=.rfind("/")
+        self.file_name = qual_export=[last_slash + 1:]
         print(f"File: '{self.file_name}' sucessfully loaded.")
 
 
@@ -61,6 +61,22 @@ class QualtricsParser(object):
                                     self.total_tasks))
 
 
+    def parse_at_marks(self):
+        """Determines if the number of questions in each Qualtrics survey are
+        even and then decides on a parsing method."""
+        if self.even_survey_length:
+            self.question_headings = self.questions[self.total_prelim_qs:
+                                                    self.total_prelim_qs +
+                                                    self.single_survey_length]
+        else:
+            print("\033[1mWARNING\033[0m: Number of survey questions found in"
+                  " this export are not even across tasks. This may lead to "
+                  " errors when attempting to parse the file.")
+            self.question_headings = set(self.questions[self.total_prelim_qs:])
+
+        self.make_headings_col()
+
+
     def check_if_even_qs(self, mark_list):
 
         questions_per_survey = []
@@ -93,7 +109,7 @@ class QualtricsParser(object):
             if par_id.isnumeric():
                 head_cir = row[0]
                 data = list(row[self.total_prelim_qs:])
-                data = [data[x:x+self.single_survey_length] for x in
+                data = [data[x:x+self.single_survey_\033[1mlength] for x in
                         range(0, len(data), self.single_survey_length)]
 
                 cond_df = pd.DataFrame(self.headings_col)
@@ -112,20 +128,9 @@ class QualtricsParser(object):
 
         cond_df.to_csv((f"./{par_id[:-2]}00's_conditions/{par_id}_{sensor_type}_"
                         f"conditions_s{session}.csv"), index=False)
-
-
-    def parse_at_marks(self):
-        if self.even_survey_length:
-            self.question_headings = self.questions[self.total_prelim_qs:
-                                                    self.total_prelim_qs +
-                                                    self.single_survey_length]
-        else:
-            print("\033[1mWARNING\033[0m: Number of survey questions found in"
-                  " this export are not even across tasks. This may lead to "
-                  " errors when attempting to parse the file.")
-            self.question_headings = set(self.questions[self.total_prelim_qs:])
-
-        self.make_headings_col()
+        print(f"\033[1mSUCCESS:\033[0m\n"
+              f"File: {par_id}_{sensor_type}_conditions_s{session}.csv\n"
+              f"written to: {os.getcwd()}/{par_id[:-2]}00's_conditions\n")
 
 
     def print_info(self):

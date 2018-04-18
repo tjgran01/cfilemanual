@@ -5,3 +5,4 @@
 *.DS_Store
 *data_files
 *server_ip.txt
+*.api_token.txt

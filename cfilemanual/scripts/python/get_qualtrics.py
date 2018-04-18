@@ -123,13 +123,13 @@ def get_api_token():
         file is in the wrong place. This function rasies the above and quits the
         program."""
 
-    api_fpath = "/Users/trevorgrant/api_token/syrqual.txt"
+    api_fpath = "/home/mindlab/cfilemanual/.api_token.txt"
 
     try:
     # replace address below with .txt file where your API key is stored.
         with open (api_fpath) as in_file:
-            # [:-1] removes extra whitespace.
-            apiToken = in_file.read()[:-1]
+            # [2:-1] removes extra whitespace.
+            apiToken = in_file.read()[2:-1]
             return apiToken
     except FileNotFoundError:
         print("\n ERROR: Unable to locate an API token. \n")
