@@ -1,9 +1,18 @@
 import re
+import sys
 
 class InputManager(object):
     """Class with methods for sanitizing user input."""
     def __init__(self):
         pass
+
+
+    def clean_exit():
+        """Exits the program without calling a traceback or raising a Keyboard
+        Inturupt.
+        """
+        print("Closing program ... ...")
+        sys.exit()
 
 
     def get_yes_or_no(prompt):
@@ -21,6 +30,8 @@ class InputManager(object):
                 return True
             elif ans[0].lower() == "n":
                 return False
+            elif ans == "QUIT" or ans == "KILL":
+                clean_exit()
             else:
                 print("That's not a valid answer, bud.")
 
@@ -40,6 +51,8 @@ class InputManager(object):
             print(prompt)
             try:
                 ans = int(input("> "))
+                if ans == "QUIT" or ans == "KILL":
+                    clean_exit()
             except ValueError:
                 print("You need to enter a number.")
                 continue
@@ -82,7 +95,7 @@ class InputManager(object):
         while True:
             print(prompt)
             ans = input("> ")
-            if len(ans) > 0 and " " not in ans:
+            if len(ans) > 0 and " " not in ans and not ans[0].isnumeric():
                 return ans
             print("Hmm. That doesn't appear to be a valid variable name."
                   "Variable names must be more than 0 characters, and can't"
