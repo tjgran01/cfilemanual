@@ -13,7 +13,8 @@ class QualtricsParser(object):
     Returns:
         None
     """
-    def __init__(self, qual_export=None, clean_it=True):
+    def __init__(self, qual_export=None, clean_it=True, marking=True,
+                 mark_str=" "):
         if not qual_export:
             qual_export = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
@@ -22,7 +23,9 @@ class QualtricsParser(object):
         if clean_it:
             self.clean_qualtrics_export()
             self.set_headers()
-            self.find_marks()
+            if marking:
+                self.find_marks(mark_str)
+            self.determine_if_even_qs()
 
 
     def load_in_file(self, qual_export):
@@ -86,7 +89,7 @@ class QualtricsParser(object):
         print("Headers set.")
 
 
-    def find_marks(self, mark=" "):
+    def find_marks(self, mark_str):
         """Looks through the question headers and picks out which of the headers
         indicate a mark in the data.
 
@@ -104,7 +107,13 @@ class QualtricsParser(object):
             self.total_prelim_qs: The number of questions asked before the first
             task survey was started.
             """
-        self.mark_list = [i for i, x in enumerate(self.questions) if x == mark]
+        self.mark_list = [i for i, x in enumerate(self.questions)
+                          if x == mark_str]
+        if len(self.mark_list) == 0:
+            print(f"No marks found with mark string: ''{mark_str}'.\n"
+                  "Try loading agavariablein with mark_str argument option "
+                  "set to the question text that sent the mark in Qualtrics.")
+            return None
         print(f"Marks found: {len(self.mark_list)} \n"
               f"Locations: {self.mark_list}")
         self.even_survey_length = self.check_if_even_qs(self.mark_list)
@@ -117,7 +126,7 @@ class QualtricsParser(object):
                                     self.total_tasks))
 
 
-    def parse_at_marks(self):
+    def determine_if_even_qs(self):
         """Determines if the number of questions in each Qualtrics survey are
         even and then decides on a parsing method.
 
@@ -130,6 +139,8 @@ class QualtricsParser(object):
             self.question_headings = self.questions[self.total_prelim_qs:
                                                     self.total_prelim_qs +
                                                     self.single_survey_length]
+            print(f"\033[1mSUCCESS\033[0m: There are {self.single_survey_length}"
+                  " questions per survey.")
         else:
             print("\033[1mWARNING\033[0m: Number of survey questions found in"
                   " this export are not even across tasks. This may lead to "
@@ -175,6 +186,7 @@ class QualtricsParser(object):
         if survey_strings["mrq"] in self.question_headings:
             headings_col.append(survey_dict["mrq"])
 
+        # flattens the list.
         headings_col = [elm for list in headings_col for elm in list]
         self.headings_col = pd.Series(headings_col)
 
