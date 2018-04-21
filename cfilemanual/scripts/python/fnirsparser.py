@@ -5,7 +5,8 @@ from collections import Counter
 
 from inputmanager import InputManager
 
-class FNIRSParser(object):
+
+class fNIRSParser(object):
     def __init__(self, fnirs_file="./samplefnirs/test_1.csv"):
         self.fnirs_file = fnirs_file
         self.df = pd.read_csv(fnirs_file, header=34)
@@ -17,8 +18,10 @@ class FNIRSParser(object):
         self.valid_spaceing = self.validate_spacing(self.mark_indexes)
         if self.valid_marks:
             print("Marking appears to be valid. Even number of marks found. \n")
-            print(f"Mark spacing Warnings: {[len(self.space_warnings)]}\n")
+            if self.valid_spaceing:
+                print("Spacing between marks appears to be valid.\n")
             print(f"Mark values:\n{self.mark_counts}")
+            print(f"Number of space warnings: {len(self.space_warnings)}. \n")
             self.onsets = self.get_onsets(self.mark_indexes)
             self.task_number = len(self.onsets)
             self.durations = self.get_durations(self.onsets)
@@ -57,7 +60,7 @@ class FNIRSParser(object):
                               f"The spacing between Mark onset number: "
                               f"{int(indx / 2)}, "
                                "and it's Mark offset are not exact. If you "
-                               "experience a many of these warnings "
+                               "experience many of these warnings "
                                "something may be wrong with the marking in this"
                                " file. \n\n"
                                f"Check the original file around index {mark} "
