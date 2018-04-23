@@ -2,6 +2,8 @@ import pandas as pd
 import os
 
 from inputmanager import InputManager
+from fnirsparser import fNIRSParser
+from biopacparser import BIOPACParser
 from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
@@ -14,7 +16,9 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True, marking=True,
-                 mark_str=" "):
+                 mark_str=" ", ignore_warnings=False):
+        self.ignore_warnings = ignore_warnings
+        self.data_files_not_found = []
         if not qual_export:
             qual_export = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
@@ -216,14 +220,55 @@ class QualtricsParser(object):
                     data_series = pd.Series(survey)
                     cond_df[f"Task {i + 1}"] = data_series
                 cond_df.drop(0, axis=0, inplace=True)
+                cond_df = self.get_onsets_durations(cond_df, par_id)
                 self.write_to_csv(par_id, cond_df)
+
+
+    def get_onsets_durations(self, cond_df, par_id, sensor_type="fNIRS",
+                             session="1"):
+
+        print("Attempting to locate onsets and durations.\n")
+
+        if sensor_type == "fNIRS":
+            data_file_path = (f"./raw_data/fNIRS_Files/{par_id}_fNIRS_s{session}"
+                            "_Probe1_Total_HBA_Probe1_Deoxy.csv")
+            try:
+                f = fNIRSParser(data_file_path)
+            except FileNotFoundError:
+                if not self.ignore_warnings:
+                    print("\033[1mWARNING\033[0m:\n"
+                          f"Cannot locate data file: {par_id}_fNIRS_s{session}.csv"
+                          " Continuing qualtrics parsing. Onsets and durations will"
+                          " have to be added manually.\n")
+                self.data_files_not_found.append(data_file_path)
+                return cond_df
+
+            onsets = f.onsets
+            durations = f.durations
+
+        elif sensor_type == "BIOPAC":
+            data_file_path = f"./raw_data/BIOPAC_Files/{par_id}_BIOPAC_s{session}.txt"
+            try:
+                b = BIOPACParser(data_file_path)
+            except FileNotFoundError:
+                if not self.ignore_warnings:
+                    print("\033[1mWARNING\033[0m:\n"
+                          f"Cannot locate data file: {par_id}_fNIRS_s{session}.csv"
+                          " Continuing qualtrics parsing. Onsets and durations will"
+                          " have to be added manually.")
+                self.data_files_not_found.append(data_file_path)
+                return cond_df
+
+            onset = b.onsets
+            durations = b.durations
+
 
     def write_to_csv(self, par_id, cond_df, sensor_type="fNIRS", session="1"):
         """Writes cond_df to a .csv file.
 
         Args:
-            par_id(str): The participant ID number corresponding the the conditions
-            file.
+            par_id(str): The participant ID number corresponding the the
+            conditions file.
             cond_df(DataFrame): The DataFrame object to be written to a .csv
             file.
             sensor_type(str): The Sensor type the the conditions file is being
@@ -231,6 +276,7 @@ class QualtricsParser(object):
             session(str): The session number that the conditions file is being
             written for.
         """
+
 
         if not os.path.exists(f"./{par_id[:-2]}00's_conditions/"):
             os.mkdir(f"./{par_id[:-2]}00's_conditions/")

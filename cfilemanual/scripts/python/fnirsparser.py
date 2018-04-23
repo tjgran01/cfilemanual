@@ -7,7 +7,7 @@ from inputmanager import InputManager
 
 
 class fNIRSParser(object):
-    def __init__(self, fnirs_file="./samplefnirs/test_1.csv"):
+    def __init__(self, fnirs_file="./sampledata/samplefnirs/test_1.csv"):
         self.fnirs_file = fnirs_file
         self.df = pd.read_csv(fnirs_file, header=34)
         self.mark_col = self.df["Mark"].tolist()
