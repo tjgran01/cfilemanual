@@ -1,7 +1,8 @@
 import pandas as pd
+import numpy as np
 import os
 import csv
-from collections import Counter
+
 
 from inputmanager import InputManager
 
@@ -16,7 +17,9 @@ class BIOPACParser(object):
         self.get_col_names()
         self.mark_col = self.df["Mark"]
         self.mark_list = self.get_mark_list(self.mark_col)
-        self.num_of_marks = len(self.mark_list) / 2 # Two pulses = 1 mark.
+        self.num_of_marks = int(len(self.mark_list) / 2) # Two pulses = 1 mark.
+        self.onsets = self.get_onsets(self.mark_list)
+        self.durations = self.get_durations(self.onsets, self.close_marks)
 
 
     def convert_to_csv(self):
@@ -62,3 +65,30 @@ class BIOPACParser(object):
             if mark != y + 1:
                 cleaned_ml.append(mark)
         return cleaned_ml
+
+
+    def get_task_information(self, mark_type="open_close"):
+
+        if mark_type == "open_close":
+            self.task_num = int(self.num_of_marks / 2)
+
+
+    def get_onsets(self, mark_list):
+
+        # Remove duplicate marks.
+        marks = [mark for indx, mark in enumerate(mark_list)
+                 if indx % 2 == 0 or indx == 0]
+        open_marks = [mark for indx, mark in enumerate(marks)
+                      if indx % 2 == 0 or indx == 0]
+        self.close_marks = [mark for indx, mark in enumerate(marks)
+                            if indx % 2 != 0]
+
+        return open_marks
+
+
+    def get_durations(self, onsets, close_marks):
+
+        onsets = np.array(onsets)
+        close_marks = np.array(close_marks)
+        durations = close_marks - onsets
+        return list(durations)
