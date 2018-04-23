@@ -8,6 +8,9 @@ from inputmanager import InputManager
 
 
 class BIOPACParser(object):
+    """Takes in a BIOPAC .txt file, creates a .csv verision of the .txt file,
+    and finds the onsets and durations of tasks in the data.
+    """
     def __init__(self, bio_file="./samplebiopac/7777_BIOPAC_s2.csv",
                  mark_csv=False):
         self.file_path = bio_file
@@ -23,6 +26,9 @@ class BIOPACParser(object):
 
 
     def convert_to_csv(self):
+        """Takes the current .txt file, reads the incoming information, and
+        writes it to a .csv
+        """
         with open(self.file_path, "r") as in_txt:
             reader = csv.reader(in_txt, delimiter=",")
 
@@ -36,7 +42,9 @@ class BIOPACParser(object):
 
 
     def get_col_names(self):
-
+        """Asks the user to rename the columns if they were not properly named
+        before.
+        """
         new_col_names = []
         for col_name in self.df.columns:
 
@@ -56,7 +64,19 @@ class BIOPACParser(object):
 
 
     def get_mark_list(self, mark_col):
+        """Culls down the list of marks (as the marking pulse is about 0.5
+        seconds) and returns only the first index (row) value of that mark.
 
+        Args:
+            mark_col(Series): The column in the BIOPAC df that holds the marking
+            information.
+        Returns
+            cleaned_ml(list): A cleaned mark list - with one index value
+            representing one voltage change in the BIOPAC.
+        Note:
+            This will not clean out noise in the BIOPAC data file. A function
+            will soon be added to account for this.
+        """
         mark_list = [indx for indx, mark in enumerate(mark_col)
                      if mark > 0 and mark < 10]
         cleaned_ml = []
@@ -68,13 +88,34 @@ class BIOPACParser(object):
 
 
     def get_task_information(self, mark_type="open_close"):
+        """Determines how many tasks are in the current data file based on the
+        fingerprint left by the marks. This is for sanity checking purposes.
+
+        Args:
+            mark_type(str): The mark structure of the list - 'open_close' by
+            default, meaning the first set of marks indicates the start of a
+            task, and the next set of marks indicates the end of a task.
+        Sets:
+            self.task_num(int): The number of tasks in the physiological data.
+        """
 
         if mark_type == "open_close":
             self.task_num = int(self.num_of_marks / 2)
 
 
     def get_onsets(self, mark_list):
+        """Gets the onset index (row #) of each task in the data.
 
+        Args:
+            mark_list(list): the list of indexs (row #s) of all of the marks
+            in the data.
+        Returns:
+            open_marks(list): A list of the marks that indicate a mark has been
+            opened.
+        Sets:
+            self.close_marks(list): A list of the marks that indicate a mark has
+            been closed.
+        """
         # Remove duplicate marks.
         marks = [mark for indx, mark in enumerate(mark_list)
                  if indx % 2 == 0 or indx == 0]
@@ -87,7 +128,18 @@ class BIOPACParser(object):
 
 
     def get_durations(self, onsets, close_marks):
+        """Gets the amount of indexes during which a participant was performing
+        a task.
 
+        Args:
+            onsets(list): A list of the marks that indicate a mark has been
+            opened.
+            close_marks(list): A list of the marks that indicate a mark has been
+            closed.
+        Returns:
+            durations(list): the amount of indexes during which a participant
+            was performing a task.
+        """
         onsets = np.array(onsets)
         close_marks = np.array(close_marks)
         durations = close_marks - onsets
