@@ -153,6 +153,7 @@ program.
 ## To Close:
 
 -First, on the Raspberry Pi type `Ctrl + c`.
+
 -Then, on the linux computer type `Ctrl + c`.
 
 Both terminal windows will output a "KeyBoardInterrupt" error. This is fine.
