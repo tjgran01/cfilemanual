@@ -10,7 +10,7 @@ from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
     """Object that finds a qualtrics export file, examines it, and if possible
-    auto-generates the conditions files based on the survey dataself.
+    auto-generates the conditions files based on the survey data.
 
     Args:
         qual_export(str): File path to where the qualtrics download is located.
@@ -18,25 +18,34 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True, marking=True,
-                 mark_str=" ", ignore_warnings=False):
+                 mark_str=" ", ignore_warnings=False, study_template=None):
 
         self.mark_str = mark_str
         self.ignore_warnings = ignore_warnings
         self.data_files_not_found = []
+        self.study_template = study_template
 
         if not qual_export:
             qual_export = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
                                                      "you wish to parse: ")
+
         self.load_in_file(qual_export)
         if clean_it:
             self.clean_qualtrics_export()
             self.set_headers()
+
+        if not self.study_template:
             if marking:
-                self.checks_out = self.find_marks(mark_str)
+                self.find_marks(mark_str)
             self.select_parsing_process()
             self.make_headings_col()
-
+        elif study_template == "Soyoung":
+            self.find_marks(mark_str)
+            self.total_survey_length = len(self.questions)
+            self.total_tasks = 15
+            self.num_prelim_qs = 5
+            self.task_lengths = [6, 6, 6, 6, 6, 56, 51,]
 
     def load_in_file(self, qual_export):
         """Loads the Qualtrics Export .csv as a pandas DataFrame object.
@@ -128,6 +137,7 @@ class QualtricsParser(object):
             return None
         print(f"Marks found: {self.num_of_marks} \n"
               f"Locations: {self.mark_list}")
+
         self.even_survey_length = self.check_if_even_qs(self.mark_list)
         if self.even_survey_length:
             self.total_survey_length = len(self.questions)
@@ -136,8 +146,6 @@ class QualtricsParser(object):
             self.total_prelim_qs = (self.total_survey_length -
                                    (self.single_survey_length *
                                     self.total_tasks))
-            return True
-        return False
 
 
     def select_parsing_process(self):
@@ -162,7 +170,25 @@ class QualtricsParser(object):
             p = ("How many preliminary questions were asked before the "
                  "experiment began?: ")
             self.total_prelim_qs = self.mark_list[0]
-            self.parse_tasks_by_marks()
+            self.alt_parse = self.parse_tasks_by_marks()
+            print(self.alt_parse)
+            if self.alt_parse:
+                self.question_headings = self.questions[self.total_prelim_qs:
+                                                        self.total_prelim_qs +
+                                                        self.single_survey_length]
+                print(f"\033[1mSUCCESS\033[0m: There are {self.single_survey_length}"
+                      " questions per survey.")
+
+
+
+    def check_for_break(self, split_task):
+
+        for task in split_task:
+            for indx, question in enumerate(task):
+                if question == "Break Time - Wait for Facilitator's Instruction.":
+                    print("Break Prompt Found. Removing prompt.")
+                    task.pop(indx)
+        return split_task
 
 
     def parse_tasks_by_marks(self, start_slicer=False):
@@ -183,6 +209,8 @@ class QualtricsParser(object):
                 else:
                     this_task.append(heading)
 
+        split_task = self.check_for_break(split_task)
+
         task_lengths = []
         for task in split_task:
             task_lengths.append(len(task))
@@ -195,6 +223,9 @@ class QualtricsParser(object):
                   " be hardcoded, done by hand, or given distinct parameters"
                   " in order to be properly parsed.\n")
             print(f"Number of questions between marks: {task_lengths}\n")
+            return False
+        self.single_survey_length = task_lengths[0]
+        return True
 
 
 
@@ -234,6 +265,10 @@ class QualtricsParser(object):
             headings_col.append(survey_dict["tlx"])
         if survey_strings["mrq"] in self.question_headings:
             headings_col.append(survey_dict["mrq"])
+        if survey_strings["empathy"] in self.question_headings:
+            headings_col.append(survey_dict["empathy"])
+        if survey_strings["soyoung_media"] in self.question_headings:
+            headings_col.append(survey_dict["soyoung_media"])
 
         # flattens the list.
         headings_col = [elm for list in headings_col for elm in list]

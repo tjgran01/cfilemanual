@@ -1,7 +1,11 @@
 survey_strings = {"tlx": ("NASA - TLX Please fill out the following survey "
                           "items to reflect your experience during the "
                           "task..."),
-                  "mrq": ("MRQ - ")
+                  "mrq": ("MRQ - "),
+                  "empathy": ("Please take a look at the following picture, "
+                              "and answer the questionnaire. Take enough time "
+                              "to un..."),
+                  "soyoung_media": ("some string")
                  }
 
 survey_dict = {"phys_info": ["", "onset", "duration", "stim"],
@@ -11,4 +15,7 @@ survey_dict = {"phys_info": ["", "onset", "duration", "stim"],
                         "tlx_effort", "tlx_frustration"],
 
                "mrq": ["", "onset", "duration", "stim", "mrq"],
+               "empathy": ["emp_prompt", "emp_pic", "emp_how_feel",
+                           "emp_concern", "emp_aroused", "emp_touching"],
+               "soyoung_media": ["", ""],
               }
