@@ -1,7 +1,11 @@
 import pandas as pd
 import os
 
+from matplotlib import pyplot as plt
+
 from inputmanager import InputManager
+from fnirsparser import fNIRSParser
+from biopacparser import BIOPACParser
 from survey_dict import survey_dict, survey_strings
 
 class QualtricsParser(object):
@@ -14,7 +18,12 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True, marking=True,
-                 mark_str=" "):
+                 mark_str=" ", ignore_warnings=False):
+
+        self.mark_str = mark_str
+        self.ignore_warnings = ignore_warnings
+        self.data_files_not_found = []
+
         if not qual_export:
             qual_export = InputManager.get_valid_fpath("Please enter a filepath "
                                                      "for the Qualtrics export "
@@ -24,8 +33,9 @@ class QualtricsParser(object):
             self.clean_qualtrics_export()
             self.set_headers()
             if marking:
-                self.find_marks(mark_str)
-            self.determine_if_even_qs()
+                self.checks_out = self.find_marks(mark_str)
+            self.select_parsing_process()
+            self.make_headings_col()
 
 
     def load_in_file(self, qual_export):
@@ -68,6 +78,7 @@ class QualtricsParser(object):
         self.df.drop(self.df.index[1], axis=0, inplace=True)
         self.id_col = self.df.iloc[:, 0]
         self.par_ids = self.id_col.tolist()
+        self.total_par = len(self.par_ids) - 1
         self.head_cir_col = self.df.iloc[:, 1]
         print("Unneeded columns have been stripped away.")
 
@@ -109,24 +120,27 @@ class QualtricsParser(object):
             """
         self.mark_list = [i for i, x in enumerate(self.questions)
                           if x == mark_str]
-        if len(self.mark_list) == 0:
+        self.num_of_marks = len(self.mark_list)
+        if self.num_of_marks == 0:
             print(f"No marks found with mark string: ''{mark_str}'.\n"
                   "Try loading agavariablein with mark_str argument option "
                   "set to the question text that sent the mark in Qualtrics.")
             return None
-        print(f"Marks found: {len(self.mark_list)} \n"
+        print(f"Marks found: {self.num_of_marks} \n"
               f"Locations: {self.mark_list}")
         self.even_survey_length = self.check_if_even_qs(self.mark_list)
         if self.even_survey_length:
             self.total_survey_length = len(self.questions)
-            self.total_tasks = len(self.mark_list)
+            self.total_tasks = self.num_of_marks
             self.single_survey_length = self.mark_list[1] - self.mark_list[0]
             self.total_prelim_qs = (self.total_survey_length -
                                    (self.single_survey_length *
                                     self.total_tasks))
+            return True
+        return False
 
 
-    def determine_if_even_qs(self):
+    def select_parsing_process(self):
         """Determines if the number of questions in each Qualtrics survey are
         even and then decides on a parsing method.
 
@@ -144,10 +158,44 @@ class QualtricsParser(object):
         else:
             print("\033[1mWARNING\033[0m: Number of survey questions found in"
                   " this export are not even across tasks. This may lead to "
-                  " errors when attempting to parse the file.")
-            self.question_headings = set(self.questions[self.total_prelim_qs:])
+                  " errors when attempting to parse the file.\n")
+            p = ("How many preliminary questions were asked before the "
+                 "experiment began?: ")
+            self.total_prelim_qs = self.mark_list[0]
+            self.parse_tasks_by_marks()
 
-        self.make_headings_col()
+
+    def parse_tasks_by_marks(self, start_slicer=False):
+        """Counts marks as openers and closers."""
+        split_task = []
+
+        raw_headings = self.questions
+        this_task = []
+        for heading in raw_headings:
+            if not start_slicer:
+                if heading == self.mark_str:
+                    start_slicer = True
+            else:
+                if heading == self.mark_str:
+                    split_task.append(this_task)
+                    this_task = []
+                    start_slicer = False
+                else:
+                    this_task.append(heading)
+
+        task_lengths = []
+        for task in split_task:
+            task_lengths.append(len(task))
+
+        if len(set(task_lengths)) != 1:
+            print("\033[1mWARNING\033[0m: Number of survey questions found in"
+                  " this export are not even across tasks. An alternative method"
+                  " for parsing has attempted to fix this issue and was not"
+                  " able to do so. Your export will either need to"
+                  " be hardcoded, done by hand, or given distinct parameters"
+                  " in order to be properly parsed.\n")
+            print(f"Number of questions between marks: {task_lengths}\n")
+
 
 
     def check_if_even_qs(self, mark_list):
@@ -159,12 +207,12 @@ class QualtricsParser(object):
         Returns:
             Bool: True if the space between indexes are true, False if they are
             not."""
-        questions_per_survey = []
+        self.questions_per_survey = []
         for i, x in enumerate(self.mark_list):
             if i > 0:
                 y = self.mark_list[i - 1]
-                questions_per_survey.append(x - y)
-        if len(set(questions_per_survey)) != 1:
+                self.questions_per_survey.append(x - y)
+        if len(set(self.questions_per_survey)) != 1:
             return False
         return True
 
@@ -179,6 +227,7 @@ class QualtricsParser(object):
             self.headings_col(Series): A series object with all of the proper
             headings to be written to the exported conditions files.
         """
+        # Need to find an ordering priority for this bit.
         headings_col = []
         headings_col.append(survey_dict["phys_info"])
         if survey_strings["tlx"] in self.question_headings:
@@ -206,6 +255,7 @@ class QualtricsParser(object):
             if par_id.isnumeric():
                 head_cir = row[0]
                 data = list(row[self.total_prelim_qs:])
+                # parses by len of single survey.
                 data = [data[x:x+self.single_survey_length] for x in
                         range(0, len(data), self.single_survey_length)]
 
@@ -216,14 +266,55 @@ class QualtricsParser(object):
                     data_series = pd.Series(survey)
                     cond_df[f"Task {i + 1}"] = data_series
                 cond_df.drop(0, axis=0, inplace=True)
+                cond_df = self.get_onsets_durations(cond_df, par_id)
                 self.write_to_csv(par_id, cond_df)
+
+
+    def get_onsets_durations(self, cond_df, par_id, sensor_type="fNIRS",
+                             session="1"):
+
+        print("Attempting to locate onsets and durations.\n")
+
+        if sensor_type == "fNIRS":
+            data_file_path = (f"./raw_data/fNIRS_Files/{par_id}_fNIRS_s{session}"
+                            "_Probe1_Total_HBA_Probe1_Deoxy.csv")
+            try:
+                f = fNIRSParser(data_file_path)
+            except FileNotFoundError:
+                if not self.ignore_warnings:
+                    print("\033[1mWARNING\033[0m:\n"
+                          f"Cannot locate data file: {par_id}_fNIRS_s{session}.csv"
+                          " Continuing qualtrics parsing. Onsets and durations will"
+                          " have to be added manually.\n")
+                self.data_files_not_found.append(data_file_path)
+                return cond_df
+
+            onsets = f.onsets
+            durations = f.durations
+
+        elif sensor_type == "BIOPAC":
+            data_file_path = f"./raw_data/BIOPAC_Files/{par_id}_BIOPAC_s{session}.txt"
+            try:
+                b = BIOPACParser(data_file_path)
+            except FileNotFoundError:
+                if not self.ignore_warnings:
+                    print("\033[1mWARNING\033[0m:\n"
+                          f"Cannot locate data file: {par_id}_fNIRS_s{session}.csv"
+                          " Continuing qualtrics parsing. Onsets and durations will"
+                          " have to be added manually.")
+                self.data_files_not_found.append(data_file_path)
+                return cond_df
+
+            onset = b.onsets
+            durations = b.durations
+
 
     def write_to_csv(self, par_id, cond_df, sensor_type="fNIRS", session="1"):
         """Writes cond_df to a .csv file.
 
         Args:
-            par_id(str): The participant ID number corresponding the the conditions
-            file.
+            par_id(str): The participant ID number corresponding the the
+            conditions file.
             cond_df(DataFrame): The DataFrame object to be written to a .csv
             file.
             sensor_type(str): The Sensor type the the conditions file is being
@@ -232,11 +323,13 @@ class QualtricsParser(object):
             written for.
         """
 
+
         if not os.path.exists(f"./{par_id[:-2]}00's_conditions/"):
             os.mkdir(f"./{par_id[:-2]}00's_conditions/")
 
         cond_df.to_csv((f"./{par_id[:-2]}00's_conditions/{par_id}_{sensor_type}_"
                         f"conditions_s{session}.csv"), index=False)
+
         print(f"\033[1mSUCCESS:\033[0m\n"
               f"File: {par_id}_{sensor_type}_conditions_s{session}.csv\n"
               f"written to: {os.getcwd()}/{par_id[:-2]}00's_conditions\n")
@@ -250,3 +343,9 @@ class QualtricsParser(object):
         print(f"Number of questions per survey: {self.single_survey_length}")
         print(f"Number of tasks: {self.total_tasks}")
         print(f"All question headings: {self.question_headings}")
+
+
+
+class QualtricsPlotter(QualtricsParser):
+    def __init__(self, qual_export=None):
+        super().__init__()

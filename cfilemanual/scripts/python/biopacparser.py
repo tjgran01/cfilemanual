@@ -11,7 +11,7 @@ class BIOPACParser(object):
     """Takes in a BIOPAC .txt file, creates a .csv verision of the .txt file,
     and finds the onsets and durations of tasks in the data.
     """
-    def __init__(self, bio_file="./samplebiopac/7777_BIOPAC_s2.csv",
+    def __init__(self, bio_file="./sampledata/samplebiopac/7777_BIOPAC_s2.csv",
                  mark_csv=False):
         self.file_path = bio_file
         if self.file_path[-4:] == ".txt" and make_csv:
