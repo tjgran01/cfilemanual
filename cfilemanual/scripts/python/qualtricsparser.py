@@ -1,12 +1,10 @@
 import pandas as pd
 import os
 
-from matplotlib import pyplot as plt
-
 from inputmanager import InputManager
 from fnirsparser import fNIRSParser
 from biopacparser import BIOPACParser
-from survey_dict import survey_dict, survey_strings
+from survey_dict import survey_dict, survey_strings, templates
 
 class QualtricsParser(object):
     """Object that finds a qualtrics export file, examines it, and if possible
@@ -18,34 +16,63 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True, marking=True,
-                 mark_str=" ", ignore_warnings=False, study_template=None):
+                 mark_str=" ", ignore_warnings=False, template=None):
 
-        self.mark_str = mark_str
-        self.ignore_warnings = ignore_warnings
-        self.data_files_not_found = []
-        self.study_template = study_template
+        if template:
+            self.load_template_params(template)
+        else:
+            self.mark_str = mark_str
+            self.ignore_warnings = ignore_warnings
+            self.data_files_not_found = []
 
-        if not qual_export:
-            qual_export = InputManager.get_valid_fpath("Please enter a filepath "
-                                                     "for the Qualtrics export "
-                                                     "you wish to parse: ")
+            if not qual_export:
+                qual_export = InputManager.get_valid_fpath("Please enter a filepath "
+                                                         "for the Qualtrics export "
+                                                         "you wish to parse: ")
+            self.load_in_file(qual_export)
+            if clean_it:
+                self.clean_qualtrics_export()
+                self.set_headers()
+                if marking:
+                    self.checks_out = self.find_marks(mark_str)
+                self.select_parsing_process()
+                self.make_headings_col()
 
-        self.load_in_file(qual_export)
-        if clean_it:
+
+    def load_template_params(self, template):
+
+        if template == "soyoung":
+            # For testing just use one export.
+            self.qual_export = ("./MyQualtricsDownload/Post-Survey (D)"
+                                " DD_Digital Native_Dissertation.csv")
+
+            self.qual_export_list = [("./MyQualtricsDownload/'Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv'")]
+
+
+            self.mark_str = " "
+            self.ignore_warnings = False
+            self.data_files_not_found = []
+
+            self.load_in_file(self.qual_export)
             self.clean_qualtrics_export()
             self.set_headers()
+            self.checks_out = self.find_marks(self.mark_str)
+            self.headings_col = templates["soyoung"]
+            self.start_surveys = [5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289,
+                                  348, 411, 469, 527]
 
-        if not self.study_template:
-            if marking:
-                self.find_marks(mark_str)
-            self.select_parsing_process()
-            self.make_headings_col()
-        elif study_template == "Soyoung":
-            self.find_marks(mark_str)
-            self.total_survey_length = len(self.questions)
-            self.total_tasks = 15
-            self.num_prelim_qs = 5
-            self.task_lengths = [6, 6, 6, 6, 6, 56, 51,]
+
+        elif template == "test1":
+            self.mark_str = " "
+
+
 
     def load_in_file(self, qual_export):
         """Loads the Qualtrics Export .csv as a pandas DataFrame object.
@@ -378,9 +405,3 @@ class QualtricsParser(object):
         print(f"Number of questions per survey: {self.single_survey_length}")
         print(f"Number of tasks: {self.total_tasks}")
         print(f"All question headings: {self.question_headings}")
-
-
-
-class QualtricsPlotter(QualtricsParser):
-    def __init__(self, qual_export=None):
-        super().__init__()
