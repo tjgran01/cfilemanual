@@ -1,16 +1,14 @@
 import pandas as pd
 import os
 
-from matplotlib import pyplot as plt
-
 from inputmanager import InputManager
 from fnirsparser import fNIRSParser
 from biopacparser import BIOPACParser
-from survey_dict import survey_dict, survey_strings
+from survey_dict import survey_dict, survey_strings, templates
 
 class QualtricsParser(object):
     """Object that finds a qualtrics export file, examines it, and if possible
-    auto-generates the conditions files based on the survey dataself.
+    auto-generates the conditions files based on the survey data.
 
     Args:
         qual_export(str): File path to where the qualtrics download is located.
@@ -18,24 +16,68 @@ class QualtricsParser(object):
         None
     """
     def __init__(self, qual_export=None, clean_it=True, marking=True,
-                 mark_str=" ", ignore_warnings=False):
+                 mark_str=" ", ignore_warnings=False, template=None):
 
-        self.mark_str = mark_str
-        self.ignore_warnings = ignore_warnings
-        self.data_files_not_found = []
+        self.template = template
 
-        if not qual_export:
-            qual_export = InputManager.get_valid_fpath("Please enter a filepath "
-                                                     "for the Qualtrics export "
-                                                     "you wish to parse: ")
-        self.load_in_file(qual_export)
-        if clean_it:
+        if self.template:
+            self.load_template_params(template)
+        else:
+            self.mark_str = mark_str
+            self.ignore_warnings = ignore_warnings
+            self.data_files_not_found = []
+
+            if not qual_export:
+                qual_export = InputManager.get_valid_fpath("Please enter a filepath "
+                                                         "for the Qualtrics export "
+                                                         "you wish to parse: ")
+            self.load_in_file(qual_export)
+            if clean_it:
+                self.clean_qualtrics_export()
+                self.set_headers()
+                if marking:
+                    self.checks_out = self.find_marks(mark_str)
+                self.select_parsing_process()
+                self.make_headings_col()
+
+
+    def load_template_params(self, template):
+
+        if template == "soyoung":
+            # For testing just use one export.
+            self.qual_export = ("./MyQualtricsDownload/Post-Survey (D)"
+                                " DD_Digital Native_Dissertation.csv")
+
+            self.qual_export_list = [("./MyQualtricsDownload/'Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (B)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (C)"
+                                      "DD_Digital Native_Dissertation.csv'"),
+                                     ("./MyQualtricsDownload/'Post-Survey (D)"
+                                      "DD_Digital Native_Dissertation.csv'")]
+
+
+            self.mark_str = " "
+            self.ignore_warnings = False
+            self.data_files_not_found = []
+
+            self.total_prelim_qs = 5
+            self.load_in_file(self.qual_export)
             self.clean_qualtrics_export()
             self.set_headers()
-            if marking:
-                self.checks_out = self.find_marks(mark_str)
-            self.select_parsing_process()
-            self.make_headings_col()
+            self.checks_out = self.find_marks(self.mark_str)
+            self.headings_col = templates["soyoung"]
+            self.start_surveys = [5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289,
+                                  348, 411, 469, 527]
+            self.survey_durations = [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56,
+                                     51, 51, 51]
+            self.stim_list = templates["soyoung_a"]
+
+
+        elif template == "test1":
+            self.mark_str = " "
+
 
 
     def load_in_file(self, qual_export):
@@ -128,6 +170,7 @@ class QualtricsParser(object):
             return None
         print(f"Marks found: {self.num_of_marks} \n"
               f"Locations: {self.mark_list}")
+
         self.even_survey_length = self.check_if_even_qs(self.mark_list)
         if self.even_survey_length:
             self.total_survey_length = len(self.questions)
@@ -136,8 +179,6 @@ class QualtricsParser(object):
             self.total_prelim_qs = (self.total_survey_length -
                                    (self.single_survey_length *
                                     self.total_tasks))
-            return True
-        return False
 
 
     def select_parsing_process(self):
@@ -162,7 +203,25 @@ class QualtricsParser(object):
             p = ("How many preliminary questions were asked before the "
                  "experiment began?: ")
             self.total_prelim_qs = self.mark_list[0]
-            self.parse_tasks_by_marks()
+            self.alt_parse = self.parse_tasks_by_marks()
+            print(self.alt_parse)
+            if self.alt_parse:
+                self.question_headings = self.questions[self.total_prelim_qs:
+                                                        self.total_prelim_qs +
+                                                        self.single_survey_length]
+                print(f"\033[1mSUCCESS\033[0m: There are {self.single_survey_length}"
+                      " questions per survey.")
+
+
+
+    def check_for_break(self, split_task):
+
+        for task in split_task:
+            for indx, question in enumerate(task):
+                if question == "Break Time - Wait for Facilitator's Instruction.":
+                    print("Break Prompt Found. Removing prompt.")
+                    task.pop(indx)
+        return split_task
 
 
     def parse_tasks_by_marks(self, start_slicer=False):
@@ -183,6 +242,8 @@ class QualtricsParser(object):
                 else:
                     this_task.append(heading)
 
+        split_task = self.check_for_break(split_task)
+
         task_lengths = []
         for task in split_task:
             task_lengths.append(len(task))
@@ -195,6 +256,9 @@ class QualtricsParser(object):
                   " be hardcoded, done by hand, or given distinct parameters"
                   " in order to be properly parsed.\n")
             print(f"Number of questions between marks: {task_lengths}\n")
+            return False
+        self.single_survey_length = task_lengths[0]
+        return True
 
 
 
@@ -254,13 +318,35 @@ class QualtricsParser(object):
             par_id = row[0]
             if par_id.isnumeric():
                 head_cir = row[0]
-                data = list(row[self.total_prelim_qs:])
+                data = list(row)
+
                 # parses by len of single survey.
-                data = [data[x:x+self.single_survey_length] for x in
-                        range(0, len(data), self.single_survey_length)]
+                if not self.template:
+                    data = list(row[self.total_prelim_qs:])
+                    data = [data[x:x+self.single_survey_length] for x in
+                            range(0, len(data), self.single_survey_length)]
+                else:
+                    listed_data = []
+                    for i1, start in enumerate(self.start_surveys):
+                        sing_surv = []
+                        for i, q in enumerate(data):
+                            if i > start and i < (start + self.survey_durations[i1]):
+                                sing_surv.append(q)
+                        # Add stim to data
+                        sing_surv.insert(0, self.stim_list[i1])
+                        if self.template == "soyoung":
+                            if i1 <= 6:
+                                del sing_surv[1:3]
+                            else:
+                                for x in range(0, 4):
+                                    sing_surv.insert(1, "")
+                        listed_data.append(sing_surv)
+
+                    data = listed_data
 
                 cond_df = pd.DataFrame(self.headings_col)
                 for i, survey in enumerate(data):
+                    # inserts blanks for onsets, durations.
                     for x in range(0, 3):
                         survey.insert(0, "")
                     data_series = pd.Series(survey)
@@ -343,9 +429,3 @@ class QualtricsParser(object):
         print(f"Number of questions per survey: {self.single_survey_length}")
         print(f"Number of tasks: {self.total_tasks}")
         print(f"All question headings: {self.question_headings}")
-
-
-
-class QualtricsPlotter(QualtricsParser):
-    def __init__(self, qual_export=None):
-        super().__init__()
