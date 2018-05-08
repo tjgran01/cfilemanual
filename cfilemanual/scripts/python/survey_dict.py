@@ -38,5 +38,21 @@ templates = {"soyoung": ["", "onset", "duration", "stim",
                          'HealthConcern4', 'HealthConcern5', 'Content_affective1',
                          'Content_Cog1', 'Content_Cog2', 'Content_Cog3',
                          'Content_affective2', 'Content_affective3',
-                         'Content_affective4']
+                         'Content_affective4'],
+
+              "soyoung_a": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
+                            "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",
+                            "cont6", "cont7", "cont8"],
+
+              "soyoung_b": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
+                            "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",
+                            "cont6", "cont7", "cont8"],
+
+              "soyoung_c": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
+                            "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",
+                            "cont6", "cont7", "cont8"],
+
+              "soyoung_d": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
+                            "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",
+                            "cont6", "cont7", "cont8"],
              }

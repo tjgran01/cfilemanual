@@ -18,7 +18,9 @@ class QualtricsParser(object):
     def __init__(self, qual_export=None, clean_it=True, marking=True,
                  mark_str=" ", ignore_warnings=False, template=None):
 
-        if template:
+        self.template = template
+
+        if self.template:
             self.load_template_params(template)
         else:
             self.mark_str = mark_str
@@ -48,11 +50,11 @@ class QualtricsParser(object):
 
             self.qual_export_list = [("./MyQualtricsDownload/'Post-Survey (A)"
                                       "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                     ("./MyQualtricsDownload/'Post-Survey (B)"
                                       "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                     ("./MyQualtricsDownload/'Post-Survey (C)"
                                       "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (A)"
+                                     ("./MyQualtricsDownload/'Post-Survey (D)"
                                       "DD_Digital Native_Dissertation.csv'")]
 
 
@@ -60,6 +62,7 @@ class QualtricsParser(object):
             self.ignore_warnings = False
             self.data_files_not_found = []
 
+            self.total_prelim_qs = 5
             self.load_in_file(self.qual_export)
             self.clean_qualtrics_export()
             self.set_headers()
@@ -67,6 +70,9 @@ class QualtricsParser(object):
             self.headings_col = templates["soyoung"]
             self.start_surveys = [5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289,
                                   348, 411, 469, 527]
+            self.survey_durations = [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56,
+                                     51, 51, 51]
+            self.stim_list = templates["soyoung_a"]
 
 
         elif template == "test1":
@@ -292,10 +298,6 @@ class QualtricsParser(object):
             headings_col.append(survey_dict["tlx"])
         if survey_strings["mrq"] in self.question_headings:
             headings_col.append(survey_dict["mrq"])
-        if survey_strings["empathy"] in self.question_headings:
-            headings_col.append(survey_dict["empathy"])
-        if survey_strings["soyoung_media"] in self.question_headings:
-            headings_col.append(survey_dict["soyoung_media"])
 
         # flattens the list.
         headings_col = [elm for list in headings_col for elm in list]
@@ -316,13 +318,35 @@ class QualtricsParser(object):
             par_id = row[0]
             if par_id.isnumeric():
                 head_cir = row[0]
-                data = list(row[self.total_prelim_qs:])
+                data = list(row)
+
                 # parses by len of single survey.
-                data = [data[x:x+self.single_survey_length] for x in
-                        range(0, len(data), self.single_survey_length)]
+                if not self.template:
+                    data = list(row[self.total_prelim_qs:])
+                    data = [data[x:x+self.single_survey_length] for x in
+                            range(0, len(data), self.single_survey_length)]
+                else:
+                    listed_data = []
+                    for i1, start in enumerate(self.start_surveys):
+                        sing_surv = []
+                        for i, q in enumerate(data):
+                            if i > start and i < (start + self.survey_durations[i1]):
+                                sing_surv.append(q)
+                        # Add stim to data
+                        sing_surv.insert(0, self.stim_list[i1])
+                        if self.template == "soyoung":
+                            if i1 <= 6:
+                                del sing_surv[1:3]
+                            else:
+                                for x in range(0, 4):
+                                    sing_surv.insert(1, "")
+                        listed_data.append(sing_surv)
+
+                    data = listed_data
 
                 cond_df = pd.DataFrame(self.headings_col)
                 for i, survey in enumerate(data):
+                    # inserts blanks for onsets, durations.
                     for x in range(0, 3):
                         survey.insert(0, "")
                     data_series = pd.Series(survey)
