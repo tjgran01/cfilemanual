@@ -41,7 +41,7 @@ class QualtricsParser(object):
                 self.make_headings_col()
 
 
-    def mark_conditions_from_template(self, qual_export, stim_list):
+    def make_conditions_from_template(self, qual_export, stim_list):
 
         self.load_in_file(self.qual_export)
         self.clean_qualtrics_export()
@@ -56,13 +56,13 @@ class QualtricsParser(object):
             # For testing just use one export.
 
             self.qual_export_list = [("./MyQualtricsDownload/Post-Survey (A)"
-                                      "DD_Digital Native_Dissertation.csv"),
+                                      " DD_Digital Native_Dissertation.csv"),
                                      ("./MyQualtricsDownload/Post-Survey (B)"
-                                      "DD_Digital Native_Dissertation.csv"),
+                                      " DD_Digital Native_Dissertation.csv"),
                                      ("./MyQualtricsDownload/Post-Survey (C)"
-                                      "DD_Digital Native_Dissertation.csv"),
+                                      " DD_Digital Native_Dissertation.csv"),
                                      ("./MyQualtricsDownload/Post-Survey (D)"
-                                      "DD_Digital Native_Dissertation.csv")]
+                                      " DD_Digital Native_Dissertation.csv")]
             self.mark_str = " "
             self.ignore_warnings = False
             self.data_files_not_found = []
@@ -72,11 +72,15 @@ class QualtricsParser(object):
                                   348, 411, 469, 527]
             self.survey_durations = [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56,
                                      51, 51, 51]
+
             for export in self.qual_export_list:
-                self.stim_list = templates[f"soyoung_{export[36].lower}"]
+                self.stim_list = templates[f"soyoung_{export[35].lower()}"]
                 self.qual_export = export
-                self.make_conditions_from_template(self.qual_export,
+                try:
+                    self.make_conditions_from_template(self.qual_export,
                 self.stim_list)
+                except FileNotFoundError:
+                    print(f"File: {export} not found.")
 
         elif template == "test1":
             self.mark_str = " "

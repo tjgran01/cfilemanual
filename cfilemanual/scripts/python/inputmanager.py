@@ -50,19 +50,24 @@ class InputManager(object):
         while True:
             print(prompt)
             try:
-                ans = int(input("> "))
+                ans = input("> ")
                 if ans == "QUIT" or ans == "KILL":
                     clean_exit()
+                ans = int(ans)
             except ValueError:
                 print("You need to enter a number.")
                 continue
+
             if not extra_option:
-                if re.match(f"^[1-{str(num_options)}]$", str(ans)):
+                if re.match(f"^([1-9]|[1-9][0-{str(num_options)[1]}])$",
+                            str(ans)):
                     return ans
                 else:
+                    print(str(num_options))
                     print("That's not a valid answer.")
             else:
-                if re.match(f"^[1-{str(num_options)}]$", str(ans)):
+                if re.match(f"^([1-9]|[1-9][0-{str(num_options)[1]}])$",
+                            str(ans)):
                     return ans
                 if ans == extra_option:
                     return ans
