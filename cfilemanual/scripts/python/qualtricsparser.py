@@ -41,39 +41,42 @@ class QualtricsParser(object):
                 self.make_headings_col()
 
 
+    def mark_conditions_from_template(self, qual_export, stim_list):
+
+        self.load_in_file(self.qual_export)
+        self.clean_qualtrics_export()
+        self.set_headers()
+        self.checks_out = self.find_marks(self.mark_str)
+        self.qualtrics_to_conditions()
+
+
     def load_template_params(self, template):
 
         if template == "soyoung":
             # For testing just use one export.
-            self.qual_export = ("./MyQualtricsDownload/Post-Survey (D)"
-                                " DD_Digital Native_Dissertation.csv")
 
-            self.qual_export_list = [("./MyQualtricsDownload/'Post-Survey (A)"
-                                      "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (B)"
-                                      "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (C)"
-                                      "DD_Digital Native_Dissertation.csv'"),
-                                     ("./MyQualtricsDownload/'Post-Survey (D)"
-                                      "DD_Digital Native_Dissertation.csv'")]
-
-
+            self.qual_export_list = [("./MyQualtricsDownload/Post-Survey (A)"
+                                      "DD_Digital Native_Dissertation.csv"),
+                                     ("./MyQualtricsDownload/Post-Survey (B)"
+                                      "DD_Digital Native_Dissertation.csv"),
+                                     ("./MyQualtricsDownload/Post-Survey (C)"
+                                      "DD_Digital Native_Dissertation.csv"),
+                                     ("./MyQualtricsDownload/Post-Survey (D)"
+                                      "DD_Digital Native_Dissertation.csv")]
             self.mark_str = " "
             self.ignore_warnings = False
             self.data_files_not_found = []
-
             self.total_prelim_qs = 5
-            self.load_in_file(self.qual_export)
-            self.clean_qualtrics_export()
-            self.set_headers()
-            self.checks_out = self.find_marks(self.mark_str)
             self.headings_col = templates["soyoung"]
             self.start_surveys = [5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289,
                                   348, 411, 469, 527]
             self.survey_durations = [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56,
                                      51, 51, 51]
-            self.stim_list = templates["soyoung_a"]
-
+            for export in self.qual_export_list:
+                self.stim_list = templates[f"soyoung_{export[36].lower}"]
+                self.qual_export = export
+                self.make_conditions_from_template(self.qual_export,
+                self.stim_list)
 
         elif template == "test1":
             self.mark_str = " "

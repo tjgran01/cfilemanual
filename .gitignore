@@ -6,3 +6,5 @@
 *data_files
 *server_ip.txt
 *.api_token.txt
+*.7200's_conditions
+*.1000's_conditions
