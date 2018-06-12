@@ -56,10 +56,8 @@ def main(host):
                 result = ws.recv()
             except websocket._exceptions.WebSocketConnectionClosedException:
                 break
-            if "time" in result:
-                print(result)
             if "mark" in result:
-                print(result)
+                data = result[11:15]
                 send_to_fnirs(data)
                 send_to_biopac(data)
 
