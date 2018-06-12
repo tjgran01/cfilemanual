@@ -48,6 +48,7 @@ def send_to_biopac(data):
 
 
 def main(host):
+
     while True:
         ws = websocket.create_connection(host)
         while True:
