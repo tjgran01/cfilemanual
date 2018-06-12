@@ -17,6 +17,7 @@ CORS(app)
 @app.route("/mark", methods=["GET", "POST"])
 def mark():
     data = request.form["mark"]
+    print(data)
     if data:
         mark_server.data_transfer(data)
     else:

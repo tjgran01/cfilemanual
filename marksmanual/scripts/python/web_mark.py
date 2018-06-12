@@ -57,7 +57,8 @@ def main(host):
             except websocket._exceptions.WebSocketConnectionClosedException:
                 break
             if "mark" in result:
-                data = result[11:15]
+                data = result[11] + " \n"
+                data = result.encode("utf-8")
                 send_to_fnirs(data)
                 send_to_biopac(data)
 
