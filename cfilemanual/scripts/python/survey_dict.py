@@ -41,8 +41,11 @@ templates = {"soyoung": ["", "onset", "duration", "stim",
                          'Content_affective4'],
 
               "soyoung_a": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
-                            "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",
-                            "cont6", "cont7", "cont8"],
+                            "emp7", "sns_image_laypersons",
+                            "fact_video_specialist", "fact_image_specialist",
+                            "sns_video_laypersons", "fact_image_laypersons",
+                            "sns_video_specialist", "fact_video_laypersons",
+                            "sns_image_specialist"],
 
               "soyoung_b": ["emp1", "emp2", "em3", "emp4", "emp5", "emp6",
                             "emp7", "cont1", "cont2", "cont3", "cont4", "cont5",

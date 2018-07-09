@@ -50,6 +50,26 @@ class QualtricsParser(object):
         self.qualtrics_to_conditions()
 
 
+    def determine_starts_and_durs(self, fname):
+        if "(A)" in fname:
+            return ([5, 19, 33, 47, 61, 75, 89, 110, 173, 231, 289, 348, 406,
+                     464, 522], [7, 7, 7, 7, 7, 7, 7, 56, 51, 51, 51, 51, 51,
+                     51, 56])
+        if "(B)" in fname:
+            return ([5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 284, 348, 406,
+                     464, 527], [7, 7, 7, 7, 7, 7, 7, 51, 51, 51, 56, 51, 51,
+                     56, 51])
+        if "(C)" in fname:
+            return ([5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 284, 343, 401,
+                     464, 527], [7, 7, 7, 7, 7, 7, 7, 51, 51, 51, 51, 51, 56,
+                     56, 51])
+        else:
+            # Good
+            return ([5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289, 348, 411,
+                     469, 527], [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56, 51,
+                     51, 51])
+
+
     def load_template_params(self, template):
 
         if template == "soyoung":
@@ -68,12 +88,9 @@ class QualtricsParser(object):
             self.data_files_not_found = []
             self.total_prelim_qs = 5
             self.headings_col = templates["soyoung"]
-            self.start_surveys = [5, 19, 33, 47, 61, 75, 89, 110, 168, 226, 289,
-                                  348, 411, 469, 527]
-            self.survey_durations = [7, 7, 7, 7, 7, 7, 7, 51, 51, 56, 51, 56,
-                                     51, 51, 51]
 
             for export in self.qual_export_list:
+                self.start_surveys, self.survey_durations = self.determine_starts_and_durs(export)
                 self.stim_list = templates[f"soyoung_{export[35].lower()}"]
                 self.qual_export = export
                 try:
@@ -369,21 +386,25 @@ class QualtricsParser(object):
         print("Attempting to locate onsets and durations.\n")
 
         if sensor_type == "fNIRS":
-            data_file_path = (f"./raw_data/fNIRS_Files/{par_id}_fNIRS_s{session}"
-                            "_Probe1_Total_HBA_Probe1_Deoxy.csv")
+            data_file_path = (f"{os.getcwd()}/raw_data/fNIRS_Files/{par_id}_HBM_Probe1_Deoxy.csv")
             try:
-                f = fNIRSParser(data_file_path)
+                f = fNIRSParser(fnirs_file = data_file_path)
             except FileNotFoundError:
                 if not self.ignore_warnings:
                     print("\033[1mWARNING\033[0m:\n"
-                          f"Cannot locate data file: {par_id}_fNIRS_s{session}.csv"
+                          f"Cannot locate data file: {data_file_path}"
                           " Continuing qualtrics parsing. Onsets and durations will"
                           " have to be added manually.\n")
                 self.data_files_not_found.append(data_file_path)
                 return cond_df
 
-            onsets = f.onsets
-            durations = f.durations
+            print(len(f.onsets))
+            print(f.onsets)
+            print(len(f.durations))
+            print(f.durations)
+            cond_df.loc["onsets"] = f.onsets
+            cond_df.loc["durations"] = f.durations
+            return (cond_df)
 
         elif sensor_type == "BIOPAC":
             data_file_path = f"./raw_data/BIOPAC_Files/{par_id}_BIOPAC_s{session}.txt"
